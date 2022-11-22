@@ -12,6 +12,7 @@ def check_step(figure, desk):
     if figure.color == 0: k = -1
     else: k = 1
 
+    #need rework!!
     if figure.type == 0:
         #not finished!!
         if figure.moved == False:
