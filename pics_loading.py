@@ -1,7 +1,7 @@
 import pygame
 
 def figures_loading():
-    figures_names = ['b_pawn.png']
+    figures_names = ['b_pawn.png', 'w_pawn.png']
     figures_pics = [pygame.image.load('images/figures/'+path).convert_alpha() for path in figures_names]
     return figures_pics
 
