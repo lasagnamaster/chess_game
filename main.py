@@ -15,11 +15,12 @@ FPS = 60
 clock = pygame.time.Clock()
 
 figurs = [figures.Pawn(x = 0, y = 1, color = 1), figures.Pawn(x = 1, y = 1, color = 1),
-		  figures.Pawn(x = 0, y = 6, color = 0), figures.Pawn(x = 1, y = 6, color = 0),
-		  figures.Pawn(x = 1, y = 5, color = 1)]
+		  figures.Pawn(x = 0, y = 6, color = 0), figures.Pawn(x = 5, y = 6, color = 0),
+		  figures.Pawn(x = 1, y = 5, color = 1),
+		  figures.Ladya(x = 7, y = 0, color = 1), figures.Ladya(x = 0, y = 0, color = 1),
+		  figures.Ladya(x = 7, y = 7, color = 0), figures.Ladya(x = 0, y = 7, color = 0)]
 
-desk = [[False for i in range(8)] for j in range(8)]
-print(desk)
+desk = [[-1 for i in range(8)] for j in range(8)]
 finished = False
 ticker = 0
 hod = 0
@@ -33,18 +34,22 @@ def click(event):
 	x = event.pos[0]
 	y = event.pos[1]
 	r = False
-	
+	change_hod = hod
 	for f in figurs:
+		last_one = 0
 		b = (f.color == 0 and hod%2==0) or (f.color == 1 and hod%2==1)
+		
 		if f.clicked and b: 
 			hod = f.move(event, desk, hod)
-			break
-		if x < (f.x+1)*64+284 and x >= f.x*64+284 and y >= f.y*64+104 and y < (f.y+1)*64+104 and b:
+			last_one = f
+		if x < (f.x+1)*64+284 and x >= f.x*64+284 and y >= f.y*64+104 and y < (f.y+1)*64+104 and b and not(last_one):
 			f.clicked = True
 			r = True
 		else:
 			f.clicked = False
-		
+	if change_hod!=hod:
+		for f in figurs:
+			f.clicked = False
 	if r: return True
 	for f in figurs:
 		f.clicked = False
@@ -71,8 +76,7 @@ def render():
 
 	return rg
 
-while not finished:
-	
+while not finished: #main cycle
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			exit()

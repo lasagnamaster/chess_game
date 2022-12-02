@@ -1,4 +1,4 @@
-import pygame, pics_loading
+import pygame, pics_loading, visuals
 
 class Figure:
 	"""
@@ -23,68 +23,17 @@ class Figure:
 	def draw(self, surf):
 		pass
 
-class Pawn(Figure):
-	def __init__(self,x,y, color):
-		super().__init__(x,y, color)
-	
-	def draw(self, surf, desk):
-		desk[self.y][self.x] = True
-		if self.clicked:
-			if not(self.transformed): #штука для красивого уменьшения фигурки
-				self.sx-=3
-				self.sy-=3
-				if self.color == 1: self.surf = pygame.transform.scale(pics_loading.figures_loading()[0], (self.sx, self.sy))
-				elif self.color == 0: self.surf = pygame.transform.scale(pics_loading.figures_loading()[1], (self.sx, self.sy))
-				if self.sx<=50:
-					self.transformed = True
-			steps = self.goes(desk)
-			green = pics_loading.visuals_loading()[1]
-			for i in range(len(steps)):
-				for j in range(len(steps[i])):
-					if steps[i][j]:
-						surf.blit(green, (j*64, i*64))
-		else: 
-			#если на фигуру не нажали, то мы рисуем её изначальный вид
-			self.surf = pygame.Surface((64,64))
-			if self.color == 1: self.surf.blit(pics_loading.figures_loading()[0],(0,0))
-			else: self.surf.blit(pics_loading.figures_loading()[1],(0,0))
-			self.sx = 64
-			self.sy = 64
-			self.transformed = False
-
-		rect = self.surf.get_rect(center = (self.x*64+32, self.y*64+32))
-		surf.blit(self.surf, rect)
-
-	def goes(self, desk):
-		steps = [[False for i in range(8)] for j in range(8)]
-		if self.color == 0: k = -1 #white
-		else: k = 1 #black
-		if not(self.y+2*k == 8 or self.y+2*k == -1 or self.y+2*k == -2 or self.y+2*k == 9):
-			if self.steps == 0 and not(desk[self.y + 2*k][self.x] or desk[self.y + k][self.x]): #moving pawn on its first move
-				steps[self.y + 2*k][self.x]=True
-			if self.y + k != 8 or self.y + k != -1:
-				if not(desk[self.y + k][self.x]):
-					steps[self.y + k][self.x]=True
-		#need fix
-		
-		#if desk[self.y+k][self.x+1]:
-			#steps[self.y+k][self.x+1] = True
-		#if desk[self.y+k][self.x-1]:
-			#steps[self.y+k][self.x-1] = True
-		
-		return steps
-
 	def move(self, event, desk, hod):
 		steps = self.goes(desk)
 		x0 = event.pos[0]
 		y0 = event.pos[1]
-		if self.color == 0: k = -1 #white
-		else: k = 1 #black
+		
 		for i in range(len(steps)):
 			for j in range(len(steps[i])):
 				if steps[i][j]:
 					steps[i][j]==False
 					if x0 < (j+1)*64+284 and x0 >= j*64+284 and y0 >= i*64+104 and y0 < (i+1)*64+104:
+						desk[self.y][self.x] = -1
 						self.y = i
 						self.x = j
 						self.steps+=1
@@ -95,21 +44,121 @@ class Pawn(Figure):
 						return hod
 		return hod
 
-class Ladya(Figure):
-	pass
+class Pawn(Figure):
+	def __init__(self,x,y, color):
+		super().__init__(x,y, color)
+	
+	def draw(self, surf, desk):
+		desk[self.y][self.x] = self.color
+		if self.clicked:
+			self.steps_draw(surf, desk)
+		visuals.scale_down(self, pics_loading.figures_loading()[0], pics_loading.figures_loading()[1], surf, desk)
 
-class Slon(Figure):
-	pass
+		rect = self.surf.get_rect(center = (self.x*64+32, self.y*64+32))
+		surf.blit(self.surf, rect)
+
+	def steps_draw(self, surf, desk): #отрисовка возможных шагов
+		if self.clicked:
+			steps = self.goes(desk)
+			green = pics_loading.visuals_loading()[1]
+			for i in range(len(steps)):
+				for j in range(len(steps[i])):
+					if steps[i][j]:
+						surf.blit(green, (j*64, i*64))
+
+	def goes(self, desk):
+		#desk_print(desk)
+		steps = [[False for i in range(8)] for j in range(8)]
+		if self.color == 0: k = -1 #white
+		else: k = 1 #black
+		if not(self.y+2*k == 8 or self.y+2*k == -1 or self.y+2*k == -2 or self.y+2*k == 9):
+			if self.steps == 0 and not(desk[self.y + 2*k][self.x]!=-1 or desk[self.y + k][self.x]!=-1): #moving pawn on its first move
+				steps[self.y + 2*k][self.x]=True
+		if not(self.y + k == 8 or self.y + k == -1):
+			if not(desk[self.y + k][self.x]!=-1):
+				steps[self.y + k][self.x]=True
+
+		if not(self.y+k == 8 or self.y+k == -1) and not(self.x+1 == 8):
+			if desk[self.y+k][self.x+1]!=self.color and (desk[self.y+k][self.x+1]!=-1):
+				steps[self.y+k][self.x+1] = True
+		if not(self.y+k == 8 or self.y+k == -1) and not(self.x-1 == -1):
+			if desk[self.y+k][self.x-1]!=self.color and (desk[self.y+k][self.x-1]!=-1):
+				steps[self.y+k][self.x-1] = True
+		
+		return steps
+
+class Ladya(Figure):
+	def __init__(self,x,y, color):
+		super().__init__(x,y, color)
+
+	def draw(self, surf, desk):
+		desk[self.y][self.x] = self.color
+		if self.clicked:
+			self.steps_draw(surf, desk)
+		visuals.scale_down(self, pics_loading.figures_loading()[2], pics_loading.figures_loading()[3], surf, desk)
+
+		rect = self.surf.get_rect(center = (self.x*64+32, self.y*64+32))
+		surf.blit(self.surf, rect)
+
+	def steps_draw(self, surf, desk):
+		if self.clicked:
+			steps = self.goes(desk)
+			green = pics_loading.visuals_loading()[1]
+			for i in range(len(steps)):
+				for j in range(len(steps[i])):
+					if steps[i][j]:
+						surf.blit(green, (j*64, i*64))
+
+	def goes(self, desk):
+		#desk_print(desk)
+		steps = [[False for i in range(8)] for j in range(8)]
+		
+		for i in range(4):
+			for k in range(1,8):
+				if border_check(self.y, k):
+					if i==0 and desk[self.y + k][self.x]!=self.color: 
+						steps[self.y+k][self.x]=True
+						if desk[self.y + k][self.x]!=-1: break
+					elif i == 0 and desk[self.y + k][self.x]==self.color: break
+				if border_check(self.y, -k):
+					if i==1 and desk[self.y - k][self.x]!=self.color: 
+						steps[self.y-k][self.x]=True
+						if desk[self.y-k][self.x]!=-1: break
+					elif i == 1 and desk[self.y-k][self.x]==self.color: break
+				if border_check(self.x, k):
+					if i==2 and desk[self.y][self.x+k]!=self.color: 
+						steps[self.y][self.x+k]=True
+						if desk[self.y][self.x+k]!=-1: break
+					elif i == 2 and desk[self.y][self.x+k]==self.color: break
+				if border_check(self.x, -k):
+					if i==3 and desk[self.y][self.x-k]!=self.color: 
+						steps[self.y][self.x-k]=True
+						if desk[self.y][self.x-k]!=-1: break
+					elif i == 3 and desk[self.y][self.x-k]==self.color: break
+		return steps
+
+class Bishop(Figure):
+	def __init__(self,x,y, color):
+		super().__init__(x,y, color)
 
 class Horse(Figure):
-	pass
+	def __init__(self,x,y, color):
+		super().__init__(x,y, color)
 
 class Queen(Figure):
-	pass
+	def __init__(self,x,y, color):
+		super().__init__(x,y, color)
 
 class King(Figure):
-	pass
+	def __init__(self,x,y, color):
+		super().__init__(x,y, color)
 
 def desk_print(desk):
 	for i in desk:
 		print(i)
+	print('\n')
+
+def border_check(coord, koef):
+	if koef>0 and coord+koef<=7: return True
+	if koef<0 and coord+koef>=0: return True
+	return False
