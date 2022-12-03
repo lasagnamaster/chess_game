@@ -20,9 +20,6 @@ class Figure:
 		self.sy = 64
 		self.steps = 0
 
-	def draw(self, surf):
-		pass
-
 	def move(self, event, desk, hod):
 		steps = self.goes(desk)
 		x0 = event.pos[0]
@@ -141,17 +138,197 @@ class Bishop(Figure):
 	def __init__(self,x,y, color):
 		super().__init__(x,y, color)
 
+	def draw(self, surf, desk):
+		desk[self.y][self.x] = self.color
+		if self.clicked:
+			self.steps_draw(surf, desk)
+		visuals.scale_down(self, pics_loading.figures_loading()[4], pics_loading.figures_loading()[5], surf, desk)
+
+		rect = self.surf.get_rect(center = (self.x*64+32, self.y*64+32))
+		surf.blit(self.surf, rect)
+
+	def steps_draw(self, surf, desk):
+		if self.clicked:
+			steps = self.goes(desk)
+			green = pics_loading.visuals_loading()[1]
+			for i in range(len(steps)):
+				for j in range(len(steps[i])):
+					if steps[i][j]:
+						surf.blit(green, (j*64, i*64))
+
+	def goes(self, desk):
+		#desk_print(desk)
+		steps = [[False for i in range(8)] for j in range(8)]
+		for i in range(4):
+			for k in range(1,8):
+				if border_check(self.y,k) and border_check(self.x, k):
+					if i == 0 and desk[self.y + k][self.x+k]!=self.color: 
+						steps[self.y+k][self.x+k]=True
+						if desk[self.y + k][self.x + k]!=-1: break
+					elif i == 0 and desk[self.y + k][self.x + k]==self.color: break
+				if border_check(self.y,-k) and border_check(self.x, k):
+					if i == 1 and desk[self.y - k][self.x+k]!=self.color: 
+						steps[self.y-k][self.x+k]=True
+						if desk[self.y - k][self.x + k]!=-1: break
+					elif i == 1 and desk[self.y - k][self.x + k]==self.color: break
+				if border_check(self.y,k) and border_check(self.x, -k):
+					if i == 2 and desk[self.y + k][self.x - k]!=self.color: 
+						steps[self.y+k][self.x-k]=True
+						if desk[self.y + k][self.x - k]!=-1: break
+					elif i == 2 and desk[self.y + k][self.x - k]==self.color: break
+				if border_check(self.y,-k) and border_check(self.x, -k):
+					if i == 3 and desk[self.y - k][self.x - k]!=self.color: 
+						steps[self.y-k][self.x-k]=True
+						if desk[self.y - k][self.x - k]!=-1: break
+					elif i == 3 and desk[self.y - k][self.x - k]==self.color: break
+		
+		return steps
+
 class Horse(Figure):
 	def __init__(self,x,y, color):
 		super().__init__(x,y, color)
+
+	def draw(self, surf, desk):
+		desk[self.y][self.x] = self.color
+		if self.clicked:
+			self.steps_draw(surf, desk)
+		visuals.scale_down(self, pics_loading.figures_loading()[6], pics_loading.figures_loading()[7], surf, desk)
+
+		rect = self.surf.get_rect(center = (self.x*64+32, self.y*64+32))
+		surf.blit(self.surf, rect)
+
+	def steps_draw(self, surf, desk):
+		if self.clicked:
+			steps = self.goes(desk)
+			green = pics_loading.visuals_loading()[1]
+			for i in range(len(steps)):
+				for j in range(len(steps[i])):
+					if steps[i][j]:
+						surf.blit(green, (j*64, i*64))
+
+	def goes(self, desk):
+		#desk_print(desk)
+		steps = [[False for i in range(8)] for j in range(8)]
+		if self.y+2<=7 and self.x+1<=7:
+			if desk[self.y+2][self.x+1]!=self.color: steps[self.y+2][self.x+1]=True
+		if self.y+2<=7 and self.x-1>=0:
+			if desk[self.y+2][self.x-1]!=self.color: steps[self.y+2][self.x-1]=True
+		if self.y-2>=0 and self.x+1<=7:
+			if desk[self.y-2][self.x+1]!=self.color: steps[self.y-2][self.x+1]=True
+		if self.y-2>=0 and self.x-1>=0:
+			if desk[self.y-2][self.x-1]!=self.color: steps[self.y-2][self.x-1]=True
+
+		if self.y+1<=7 and self.x+2<=7:
+			if desk[self.y+1][self.x+2]!=self.color: steps[self.y+1][self.x+2]=True
+		if self.y+1<=7 and self.x-2>=0:
+			if desk[self.y+1][self.x-2]!=self.color: steps[self.y+1][self.x-2]=True
+		if self.y-1>=0 and self.x+2<=7:
+			if desk[self.y-1][self.x+2]!=self.color: steps[self.y-1][self.x+2]=True
+		if self.y-1>=0 and self.x-2>=0:
+			if desk[self.y-1][self.x-2]!=self.color: steps[self.y-1][self.x-2]=True
+		
+		return steps
 
 class Queen(Figure):
 	def __init__(self,x,y, color):
 		super().__init__(x,y, color)
 
+	def draw(self, surf, desk):
+		desk[self.y][self.x] = self.color
+		if self.clicked:
+			self.steps_draw(surf, desk)
+		visuals.scale_down(self, pics_loading.figures_loading()[8], pics_loading.figures_loading()[9], surf, desk)
+
+		rect = self.surf.get_rect(center = (self.x*64+32, self.y*64+32))
+		surf.blit(self.surf, rect)
+
+	def steps_draw(self, surf, desk):
+		if self.clicked:
+			steps = self.goes(desk)
+			green = pics_loading.visuals_loading()[1]
+			for i in range(len(steps)):
+				for j in range(len(steps[i])):
+					if steps[i][j]:
+						surf.blit(green, (j*64, i*64))
+
+	def goes(self, desk):
+		#desk_print(desk)
+		steps = [[False for i in range(8)] for j in range(8)]
+		for i in range(4):
+			for k in range(1,8):
+				if border_check(self.y, k):
+					if i==0 and desk[self.y + k][self.x]!=self.color: 
+						steps[self.y+k][self.x]=True
+						if desk[self.y + k][self.x]!=-1: break
+					elif i == 0 and desk[self.y + k][self.x]==self.color: break
+				if border_check(self.y, -k):
+					if i==1 and desk[self.y - k][self.x]!=self.color: 
+						steps[self.y-k][self.x]=True
+						if desk[self.y-k][self.x]!=-1: break
+					elif i == 1 and desk[self.y-k][self.x]==self.color: break
+				if border_check(self.x, k):
+					if i==2 and desk[self.y][self.x+k]!=self.color: 
+						steps[self.y][self.x+k]=True
+						if desk[self.y][self.x+k]!=-1: break
+					elif i == 2 and desk[self.y][self.x+k]==self.color: break
+				if border_check(self.x, -k):
+					if i==3 and desk[self.y][self.x-k]!=self.color: 
+						steps[self.y][self.x-k]=True
+						if desk[self.y][self.x-k]!=-1: break
+					elif i == 3 and desk[self.y][self.x-k]==self.color: break
+		for i in range(4):
+			for k in range(1,8):
+				if border_check(self.y,k) and border_check(self.x, k):
+					if i == 0 and desk[self.y + k][self.x+k]!=self.color: 
+						steps[self.y+k][self.x+k]=True
+						if desk[self.y + k][self.x + k]!=-1: break
+					elif i == 0 and desk[self.y + k][self.x + k]==self.color: break
+				if border_check(self.y,-k) and border_check(self.x, k):
+					if i == 1 and desk[self.y - k][self.x+k]!=self.color: 
+						steps[self.y-k][self.x+k]=True
+						if desk[self.y - k][self.x + k]!=-1: break
+					elif i == 1 and desk[self.y - k][self.x + k]==self.color: break
+				if border_check(self.y,k) and border_check(self.x, -k):
+					if i == 2 and desk[self.y + k][self.x - k]!=self.color: 
+						steps[self.y+k][self.x-k]=True
+						if desk[self.y + k][self.x - k]!=-1: break
+					elif i == 2 and desk[self.y + k][self.x - k]==self.color: break
+				if border_check(self.y,-k) and border_check(self.x, -k):
+					if i == 3 and desk[self.y - k][self.x - k]!=self.color: 
+						steps[self.y-k][self.x-k]=True
+						if desk[self.y - k][self.x - k]!=-1: break
+					elif i == 3 and desk[self.y - k][self.x - k]==self.color: break
+		
+		return steps
+
 class King(Figure):
 	def __init__(self,x,y, color):
 		super().__init__(x,y, color)
+
+	def draw(self, surf, desk):
+		desk[self.y][self.x] = self.color
+		if self.clicked:
+			self.steps_draw(surf, desk)
+		visuals.scale_down(self, pics_loading.figures_loading()[10], pics_loading.figures_loading()[11], surf, desk)
+
+		rect = self.surf.get_rect(center = (self.x*64+32, self.y*64+32))
+		surf.blit(self.surf, rect)
+
+	def steps_draw(self, surf, desk):
+		if self.clicked:
+			steps = self.goes(desk)
+			green = pics_loading.visuals_loading()[1]
+			for i in range(len(steps)):
+				for j in range(len(steps[i])):
+					if steps[i][j]:
+						surf.blit(green, (j*64, i*64))
+
+	def goes(self, desk):
+		#desk_print(desk)
+		steps = [[False for i in range(8)] for j in range(8)]
+		
+		
+		return steps
 
 def desk_print(desk):
 	for i in desk:

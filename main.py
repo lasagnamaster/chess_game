@@ -18,7 +18,13 @@ figurs = [figures.Pawn(x = 0, y = 1, color = 1), figures.Pawn(x = 1, y = 1, colo
 		  figures.Pawn(x = 0, y = 6, color = 0), figures.Pawn(x = 5, y = 6, color = 0),
 		  figures.Pawn(x = 1, y = 5, color = 1),
 		  figures.Ladya(x = 7, y = 0, color = 1), figures.Ladya(x = 0, y = 0, color = 1),
-		  figures.Ladya(x = 7, y = 7, color = 0), figures.Ladya(x = 0, y = 7, color = 0)]
+		  figures.Ladya(x = 7, y = 7, color = 0), figures.Ladya(x = 0, y = 7, color = 0),
+		  figures.Bishop(x = 6, y = 0, color = 1), figures.Bishop(x = 1, y = 0, color = 1),
+		  figures.Bishop(x = 6, y = 7, color = 0), figures.Bishop(x = 1, y = 7, color = 0),
+		  figures.Horse(x = 5, y = 0, color = 1), figures.Horse(x = 2, y = 0, color = 1),
+		  figures.Horse(x = 5, y = 7, color = 0), figures.Horse(x = 2, y = 7, color = 0),
+		  figures.Queen(x = 4, y = 0, color = 1), figures.Queen(x = 3, y = 7, color = 0),
+		  figures.King(x = 3, y = 0, color = 1), figures.King(x = 4, y = 7, color = 0)]
 
 desk = [[-1 for i in range(8)] for j in range(8)]
 finished = False
