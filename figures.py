@@ -21,7 +21,7 @@ class Figure:
 		self.steps = 0
 		self.steps_m = ''
 		self.areStepsCreated = False
-
+		self.trans = 25
 	def move(self, event, desk, hod):
 		steps = self.goes(desk)
 		x0 = event.pos[0]
@@ -50,12 +50,16 @@ class Figure:
 			self.steps_m = self.goes(desk)
 			self.areStepsCreated = True
 			print('once')
+		visuals.trans(self)
 		steps = self.steps_m
 		green = pics_loading.visuals_loading()[1]
+		green.set_alpha(self.trans)
+		print(self.trans)
 		for i in range(len(steps)):
 			for j in range(len(steps[i])):
 				if steps[i][j]:
 					surf.blit(green, (j*64, i*64))
+
 
 class Pawn(Figure):
 	def __init__(self,x,y, color):

@@ -1,5 +1,5 @@
 import pygame, figures
-
+ColorSpeed = 4
 def scale_down(obj, pic1, pic2, surf, desk):
 	if obj.clicked:
 		if not(obj.transformed):
@@ -17,6 +17,16 @@ def scale_down(obj, pic1, pic2, surf, desk):
 		obj.sx = 64
 		obj.sy = 64
 		obj.transformed = False 
+def trans(obj):
+	global ColorSpeed
+	if obj.areStepsCreated == True:
+		if obj.trans + ColorSpeed >= 100:
+			print(ColorSpeed)
+			ColorSpeed = -4
+		if obj.trans + ColorSpeed <= 20:
+			ColorSpeed = +4
+		obj.trans = obj.trans + ColorSpeed
+		print(obj.trans)
 
 def movin():
 	pass
