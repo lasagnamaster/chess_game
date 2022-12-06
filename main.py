@@ -67,7 +67,8 @@ def render():
 
 	rg.fill((50,50,50))
 
-	desk_sc = pygame.Surface((512,512))
+	desk_sc = pygame.Surface((512,512)).convert_alpha()
+	desk_sc.set_colorkey((0,0,0))
 	desk_sc.blit(pics_loading.visuals_loading()[0], (0,0))
 
 	for figura in figurs:

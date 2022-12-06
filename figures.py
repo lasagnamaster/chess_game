@@ -19,6 +19,8 @@ class Figure:
 		self.sx = 64
 		self.sy = 64
 		self.steps = 0
+		self.steps_m = ''
+		self.areStepsCreated = False
 
 	def move(self, event, desk, hod):
 		steps = self.goes(desk)
@@ -36,10 +38,24 @@ class Figure:
 						self.steps+=1
 						self.transformed = False
 						self.clicked = False
+						self.areStepsCreated = False
 						hod += 1
 						print(hod)
 						return hod
 		return hod
+
+	def steps_draw(self, surf, desk):
+		
+		if not(self.areStepsCreated):
+			self.steps_m = self.goes(desk)
+			self.areStepsCreated = True
+			print('once')
+		steps = self.steps_m
+		green = pics_loading.visuals_loading()[1]
+		for i in range(len(steps)):
+			for j in range(len(steps[i])):
+				if steps[i][j]:
+					surf.blit(green, (j*64, i*64))
 
 class Pawn(Figure):
 	def __init__(self,x,y, color):
@@ -54,17 +70,7 @@ class Pawn(Figure):
 		rect = self.surf.get_rect(center = (self.x*64+32, self.y*64+32))
 		surf.blit(self.surf, rect)
 
-	def steps_draw(self, surf, desk): #отрисовка возможных шагов
-		if self.clicked:
-			steps = self.goes(desk)
-			green = pics_loading.visuals_loading()[1]
-			for i in range(len(steps)):
-				for j in range(len(steps[i])):
-					if steps[i][j]:
-						surf.blit(green, (j*64, i*64))
-
 	def goes(self, desk):
-		#desk_print(desk)
 		steps = [[False for i in range(8)] for j in range(8)]
 		if self.color == 0: k = -1 #white
 		else: k = 1 #black
@@ -97,17 +103,7 @@ class Ladya(Figure):
 		rect = self.surf.get_rect(center = (self.x*64+32, self.y*64+32))
 		surf.blit(self.surf, rect)
 
-	def steps_draw(self, surf, desk):
-		if self.clicked:
-			steps = self.goes(desk)
-			green = pics_loading.visuals_loading()[1]
-			for i in range(len(steps)):
-				for j in range(len(steps[i])):
-					if steps[i][j]:
-						surf.blit(green, (j*64, i*64))
-
 	def goes(self, desk):
-		#desk_print(desk)
 		steps = [[False for i in range(8)] for j in range(8)]
 		
 		for i in range(4):
@@ -146,15 +142,6 @@ class Bishop(Figure):
 
 		rect = self.surf.get_rect(center = (self.x*64+32, self.y*64+32))
 		surf.blit(self.surf, rect)
-
-	def steps_draw(self, surf, desk):
-		if self.clicked:
-			steps = self.goes(desk)
-			green = pics_loading.visuals_loading()[1]
-			for i in range(len(steps)):
-				for j in range(len(steps[i])):
-					if steps[i][j]:
-						surf.blit(green, (j*64, i*64))
 
 	def goes(self, desk):
 		#desk_print(desk)
@@ -197,34 +184,25 @@ class Horse(Figure):
 		rect = self.surf.get_rect(center = (self.x*64+32, self.y*64+32))
 		surf.blit(self.surf, rect)
 
-	def steps_draw(self, surf, desk):
-		if self.clicked:
-			steps = self.goes(desk)
-			green = pics_loading.visuals_loading()[1]
-			for i in range(len(steps)):
-				for j in range(len(steps[i])):
-					if steps[i][j]:
-						surf.blit(green, (j*64, i*64))
-
 	def goes(self, desk):
 		#desk_print(desk)
 		steps = [[False for i in range(8)] for j in range(8)]
-		if self.y+2<=7 and self.x+1<=7:
+		if self.y<=5 and self.x<=6:
 			if desk[self.y+2][self.x+1]!=self.color: steps[self.y+2][self.x+1]=True
-		if self.y+2<=7 and self.x-1>=0:
+		if self.y<=5 and self.x>=1:
 			if desk[self.y+2][self.x-1]!=self.color: steps[self.y+2][self.x-1]=True
-		if self.y-2>=0 and self.x+1<=7:
+		if self.y>=2 and self.x<=6:
 			if desk[self.y-2][self.x+1]!=self.color: steps[self.y-2][self.x+1]=True
-		if self.y-2>=0 and self.x-1>=0:
+		if self.y>=2 and self.x>=1:
 			if desk[self.y-2][self.x-1]!=self.color: steps[self.y-2][self.x-1]=True
 
-		if self.y+1<=7 and self.x+2<=7:
+		if self.y<=6 and self.x<=5:
 			if desk[self.y+1][self.x+2]!=self.color: steps[self.y+1][self.x+2]=True
-		if self.y+1<=7 and self.x-2>=0:
+		if self.y<=6 and self.x>=2:
 			if desk[self.y+1][self.x-2]!=self.color: steps[self.y+1][self.x-2]=True
-		if self.y-1>=0 and self.x+2<=7:
+		if self.y>=1 and self.x<=5:
 			if desk[self.y-1][self.x+2]!=self.color: steps[self.y-1][self.x+2]=True
-		if self.y-1>=0 and self.x-2>=0:
+		if self.y>=1 and self.x>=2:
 			if desk[self.y-1][self.x-2]!=self.color: steps[self.y-1][self.x-2]=True
 		
 		return steps
@@ -241,15 +219,6 @@ class Queen(Figure):
 
 		rect = self.surf.get_rect(center = (self.x*64+32, self.y*64+32))
 		surf.blit(self.surf, rect)
-
-	def steps_draw(self, surf, desk):
-		if self.clicked:
-			steps = self.goes(desk)
-			green = pics_loading.visuals_loading()[1]
-			for i in range(len(steps)):
-				for j in range(len(steps[i])):
-					if steps[i][j]:
-						surf.blit(green, (j*64, i*64))
 
 	def goes(self, desk):
 		#desk_print(desk)
@@ -313,15 +282,6 @@ class King(Figure):
 
 		rect = self.surf.get_rect(center = (self.x*64+32, self.y*64+32))
 		surf.blit(self.surf, rect)
-
-	def steps_draw(self, surf, desk):
-		if self.clicked:
-			steps = self.goes(desk)
-			green = pics_loading.visuals_loading()[1]
-			for i in range(len(steps)):
-				for j in range(len(steps[i])):
-					if steps[i][j]:
-						surf.blit(green, (j*64, i*64))
 
 	def goes(self, desk):
 		#desk_print(desk)
