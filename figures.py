@@ -32,6 +32,7 @@ class Figure:
 		self.ticker = 0
 	def move(self, event, desk, hod):
 		steps = self.goes(desk)
+		needToKill = False
 		self.x0 = x0 = event.pos[0]
 		self.y0 = y0 = event.pos[1]
 
@@ -41,6 +42,8 @@ class Figure:
 				if steps[i][j]:
 					steps[i][j]==False
 					if x0 < (j+1)*64+284 and x0 >= j*64+284 and y0 >= i*64+104 and y0 < (i+1)*64+104:
+	
+						if desk[i][j]!=self.color: needToKill = True
 						self.x0 = j*64
 						self.y0 = i*64
 						desk[self.y][self.x] = -1
@@ -53,16 +56,16 @@ class Figure:
 						self.clicked = False
 						self.areStepsCreated = False
 						hod += 1
-						print(hod)
-						return hod
-		return hod
+
+						return hod, needToKill
+		self.areStepsCreated = False
+		return hod, needToKill
 
 	def steps_draw(self, surf, desk):
 		
 		if not(self.areStepsCreated):
 			self.steps_m = self.goes(desk)
 			self.areStepsCreated = True
-			print('once')
 		visuals.trans(self)
 		steps = self.steps_m
 		green = pics_loading.visuals_loading()[1]
@@ -99,10 +102,10 @@ class Pawn(Figure):
 			if not(desk[self.y + k][self.x]!=-1):
 				steps[self.y + k][self.x]=True
 
-		if not(self.y+k == 8 or self.y+k == -1) and not(self.x+1 == 8):
+		if not(self.y+k == 8 or self.y+k == -1) and not(self.x == 7):
 			if desk[self.y+k][self.x+1]!=self.color and (desk[self.y+k][self.x+1]!=-1):
 				steps[self.y+k][self.x+1] = True
-		if not(self.y+k == 8 or self.y+k == -1) and not(self.x-1 == -1):
+		if not(self.y+k == 8 or self.y+k == -1) and not(self.x == 0):
 			if desk[self.y+k][self.x-1]!=self.color and (desk[self.y+k][self.x-1]!=-1):
 				steps[self.y+k][self.x-1] = True
 		
@@ -312,7 +315,6 @@ class King(Figure):
 		surf.blit(self.surf, rect)
 
 	def goes(self, desk):
-		#desk_print(desk)
 		steps = [[False for i in range(8)] for j in range(8)]
 		
 		
