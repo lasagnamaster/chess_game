@@ -30,11 +30,13 @@ class Figure:
 		self.vx = 0
 		self.vy = 0
 		self.ticker = 0
+		self.justEndedMoving = False
+
 	def move(self, event, desk, hod):
 		steps = self.goes(desk)
-		needToKill = False
-		self.x0 = x0 = event.pos[0]
-		self.y0 = y0 = event.pos[1]
+		
+		x0 = event.pos[0]
+		y0 = event.pos[1]
 
 		print(self.an*180/3.1415)
 		for i in range(len(steps)):
@@ -43,7 +45,7 @@ class Figure:
 					steps[i][j]==False
 					if x0 < (j+1)*64+284 and x0 >= j*64+284 and y0 >= i*64+104 and y0 < (i+1)*64+104:
 	
-						if desk[i][j]!=self.color: needToKill = True
+						
 						self.x0 = j*64
 						self.y0 = i*64
 						desk[self.y][self.x] = -1
@@ -57,9 +59,9 @@ class Figure:
 						self.areStepsCreated = False
 						hod += 1
 
-						return hod, needToKill
+						return hod
 		self.areStepsCreated = False
-		return hod, needToKill
+		return hod
 
 	def steps_draw(self, surf, desk):
 		
@@ -70,7 +72,6 @@ class Figure:
 		steps = self.steps_m
 		green = pics_loading.visuals_loading()[1]
 		green.set_alpha(self.trans)
-		print(self.trans)
 		for i in range(len(steps)):
 			for j in range(len(steps[i])):
 				if steps[i][j]:

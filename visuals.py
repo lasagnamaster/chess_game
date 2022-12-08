@@ -1,5 +1,7 @@
-import pygame, figures,math
+import pygame, figures, math
+
 ColorSpeed = 4
+
 def scale_down(obj, pic1, pic2, surf, desk):
 	if obj.clicked:
 		if not(obj.transformed):
@@ -21,15 +23,16 @@ def scale_down(obj, pic1, pic2, surf, desk):
 		obj.sx = 64
 		obj.sy = 64
 		obj.transformed = False 
+
 def trans(obj):
 	global ColorSpeed
 	if obj.areStepsCreated == True:
 		if obj.trans + ColorSpeed >= 100:
-			print(ColorSpeed)
 			ColorSpeed = -4
 		if obj.trans + ColorSpeed <= 20:
 			ColorSpeed = +4
 		obj.trans = obj.trans + ColorSpeed
+
 def move_animation(obj):
 	#не смотреть, не физики не поймут
 	obj.ticker += 0.01
@@ -37,9 +40,7 @@ def move_animation(obj):
 	obj.vy = (math.sqrt((obj.x1 - obj.x0)**2 + (obj.y0 - obj.y1)**2)*(2**0.5))*math.sin(obj.ticker)*math.sin(obj.an)
 	obj.x1 = obj.x1 + obj.vx
 	obj.y1 = obj.y1 + obj.vy
-	print('ticker=', obj.ticker)
 	if obj.ticker >= 0.3:
-		print("aaaa")
 		obj.isMoving = False
 		obj.vx = 0
 		obj.vy = 0
@@ -48,9 +49,12 @@ def move_animation(obj):
 		obj.x1 = obj.x*64
 		obj.y1 = obj.y*64
 		obj.ticker = 0
+		obj.justEndedMoving = True
+
 def AnimationUgol(obj):
 	if obj.x1 - obj.x0 == 0:
-		if obj.color == 0:
+		print(obj.y1, obj.y0)
+		if obj.y1 >= obj.y0:
 			obj.an = -math.pi / 2
 		else:
 			obj.an = math.pi / 2
