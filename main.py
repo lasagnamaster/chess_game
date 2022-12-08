@@ -16,7 +16,7 @@ clock = pygame.time.Clock()
 
 figurs = [figures.Pawn(x = 0, y = 1, color = 1), figures.Pawn(x = 1, y = 1, color = 1),
 		  figures.Pawn(x = 0, y = 6, color = 0), figures.Pawn(x = 5, y = 6, color = 0),
-		  figures.Pawn(x = 1, y = 5, color = 1),
+		  figures.Pawn(x = 1, y = 5, color = 1), 
 		  figures.Ladya(x = 7, y = 0, color = 1), figures.Ladya(x = 0, y = 0, color = 1),
 		  figures.Ladya(x = 7, y = 7, color = 0), figures.Ladya(x = 0, y = 7, color = 0),
 		  figures.Bishop(x = 6, y = 0, color = 1), figures.Bishop(x = 1, y = 0, color = 1),
@@ -31,6 +31,19 @@ finished = False
 ticker = 0
 hod = 0
 
+def search_n_kill(x,y,last_one):
+	global figurs
+	for f in figurs:
+		if f.x == x and f.y == y and f!=last_one:
+			figurs.remove(f)
+		
+def pawn_to_queen():
+	global figurs
+	for f in figurs:
+		if type(f)==figures.Pawn and ((f.color == 0 and f.y == 0) or (f.color == 1 and f.y == 7)):
+			figurs.append(figures.Queen(x = f.x, y = f.y, color = f.color))
+			figurs.remove(f)
+
 def click(event):
 	"""
 	сумасшедшая функция, отвечающая за нажатие
@@ -41,13 +54,19 @@ def click(event):
 	y = event.pos[1]
 	r = False
 	change_hod = hod
+	pawn_to_queen()
 	for f in figurs:
 		last_one = 0
 		b = (f.color == 0 and hod%2==0) or (f.color == 1 and hod%2==1)
 		
 		if f.clicked and b: 
-			hod = f.move(event, desk, hod)
+			result = f.move(event, desk, hod)
+			hod = result[0]
 			last_one = f
+			if result[1]:
+				search_n_kill(f.x,f.y, last_one)
+
+
 		if x < (f.x+1)*64+284 and x >= f.x*64+284 and y >= f.y*64+104 and y < (f.y+1)*64+104 and b and not(last_one):
 			f.clicked = True
 			r = True
