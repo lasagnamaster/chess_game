@@ -1,4 +1,4 @@
-import pygame, pics_loading, visuals
+import pygame, pics_loading, visuals, math
 
 class Figure:
 	"""
@@ -12,6 +12,8 @@ class Figure:
 	def __init__(self,x = 0, y = 0, color = 0):
 		self.x = x
 		self.y = y
+		self.x1 = self.x*64
+		self.y1 = self.y*64
 		self.color = color
 		self.clicked = False
 		self.transformed = False
@@ -21,22 +23,34 @@ class Figure:
 		self.steps = 0
 		self.steps_m = ''
 		self.areStepsCreated = False
-
+		self.trans = 25
+		self.figures_trans = 255
+		self.isMoving = False
+		self.an = 0
+		self.vx = 0
+		self.vy = 0
+		self.ticker = 0
 	def move(self, event, desk, hod):
 		steps = self.goes(desk)
-		x0 = event.pos[0]
-		y0 = event.pos[1]
 		needToKill = False
+		self.x0 = x0 = event.pos[0]
+		self.y0 = y0 = event.pos[1]
+
+		print(self.an*180/3.1415)
 		for i in range(len(steps)):
 			for j in range(len(steps[i])):
 				if steps[i][j]:
 					steps[i][j]==False
 					if x0 < (j+1)*64+284 and x0 >= j*64+284 and y0 >= i*64+104 and y0 < (i+1)*64+104:
-						
+	
 						if desk[i][j]!=self.color: needToKill = True
+						self.x0 = j*64
+						self.y0 = i*64
 						desk[self.y][self.x] = -1
-						self.y = i
 						self.x = j
+						self.y = i
+						visuals.AnimationUgol(self)
+						self.isMoving = True
 						self.steps+=1
 						self.transformed = False
 						self.clicked = False
@@ -52,12 +66,16 @@ class Figure:
 		if not(self.areStepsCreated):
 			self.steps_m = self.goes(desk)
 			self.areStepsCreated = True
+		visuals.trans(self)
 		steps = self.steps_m
 		green = pics_loading.visuals_loading()[1]
+		green.set_alpha(self.trans)
+		print(self.trans)
 		for i in range(len(steps)):
 			for j in range(len(steps[i])):
 				if steps[i][j]:
 					surf.blit(green, (j*64, i*64))
+
 
 class Pawn(Figure):
 	def __init__(self,x,y, color):
@@ -67,9 +85,10 @@ class Pawn(Figure):
 		desk[self.y][self.x] = self.color
 		if self.clicked:
 			self.steps_draw(surf, desk)
+		if self.isMoving == True:
+			visuals.move_animation(self)
 		visuals.scale_down(self, pics_loading.figures_loading()[0], pics_loading.figures_loading()[1], surf, desk)
-
-		rect = self.surf.get_rect(center = (self.x*64+32, self.y*64+32))
+		rect = self.surf.get_rect(center = (self.x1 +32, self.y1+ 32))
 		surf.blit(self.surf, rect)
 
 	def goes(self, desk):
@@ -100,9 +119,11 @@ class Ladya(Figure):
 		desk[self.y][self.x] = self.color
 		if self.clicked:
 			self.steps_draw(surf, desk)
+		if self.isMoving == True:
+			visuals.move_animation(self)
 		visuals.scale_down(self, pics_loading.figures_loading()[2], pics_loading.figures_loading()[3], surf, desk)
 
-		rect = self.surf.get_rect(center = (self.x*64+32, self.y*64+32))
+		rect = self.surf.get_rect(center = (self.x1 +32, self.y1+ 32))
 		surf.blit(self.surf, rect)
 
 	def goes(self, desk):
@@ -140,9 +161,11 @@ class Bishop(Figure):
 		desk[self.y][self.x] = self.color
 		if self.clicked:
 			self.steps_draw(surf, desk)
+		if self.isMoving == True:
+			visuals.move_animation(self)
 		visuals.scale_down(self, pics_loading.figures_loading()[4], pics_loading.figures_loading()[5], surf, desk)
 
-		rect = self.surf.get_rect(center = (self.x*64+32, self.y*64+32))
+		rect = self.surf.get_rect(center = (self.x1 +32, self.y1+ 32))
 		surf.blit(self.surf, rect)
 
 	def goes(self, desk):
@@ -181,9 +204,11 @@ class Horse(Figure):
 		desk[self.y][self.x] = self.color
 		if self.clicked:
 			self.steps_draw(surf, desk)
+		if self.isMoving == True:
+			visuals.move_animation(self)
 		visuals.scale_down(self, pics_loading.figures_loading()[6], pics_loading.figures_loading()[7], surf, desk)
 
-		rect = self.surf.get_rect(center = (self.x*64+32, self.y*64+32))
+		rect = self.surf.get_rect(center = (self.x1 +32, self.y1+ 32))
 		surf.blit(self.surf, rect)
 
 	def goes(self, desk):
@@ -217,9 +242,11 @@ class Queen(Figure):
 		desk[self.y][self.x] = self.color
 		if self.clicked:
 			self.steps_draw(surf, desk)
+		if self.isMoving == True:
+			visuals.move_animation(self)
 		visuals.scale_down(self, pics_loading.figures_loading()[8], pics_loading.figures_loading()[9], surf, desk)
 
-		rect = self.surf.get_rect(center = (self.x*64+32, self.y*64+32))
+		rect = self.surf.get_rect(center = (self.x1 +32, self.y1+ 32))
 		surf.blit(self.surf, rect)
 
 	def goes(self, desk):
@@ -280,9 +307,11 @@ class King(Figure):
 		desk[self.y][self.x] = self.color
 		if self.clicked:
 			self.steps_draw(surf, desk)
+		if self.isMoving == True:
+			visuals.move_animation(self)
 		visuals.scale_down(self, pics_loading.figures_loading()[10], pics_loading.figures_loading()[11], surf, desk)
 
-		rect = self.surf.get_rect(center = (self.x*64+32, self.y*64+32))
+		rect = self.surf.get_rect(center = (self.x1 +32, self.y1+ 32))
 		surf.blit(self.surf, rect)
 
 	def goes(self, desk):
