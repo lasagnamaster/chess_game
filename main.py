@@ -40,7 +40,7 @@ def search_n_kill(x,y,last_one):
 def pawn_to_queen():
 	global figurs
 	for f in figurs:
-		if type(f)==figures.Pawn and ((f.color == 0 and f.y == 0) or (f.color == 1 and f.y == 7)):
+		if type(f)==figures.Pawn and ((f.color == 0 and f.y == 0) or (f.color == 1 and f.y == 7)) and f.isMoving == False:
 			figurs.append(figures.Queen(x = f.x, y = f.y, color = f.color))
 			figurs.remove(f)
 
@@ -49,25 +49,24 @@ def click(event):
 	сумасшедшая функция, отвечающая за нажатие
 	здесь производится нажатие на фигуру и проверка, если игрок делает верный ход нажатой фигуры
 	"""
-	global figurs, desk, hod
+	global figurs, desk, hod, ticker, started_ticker
 	x = event.pos[0]
 	y = event.pos[1]
 	r = False
 	change_hod = hod
-	pawn_to_queen()
+	
 	for f in figurs:
 		last_one = 0
-		b = (f.color == 0 and hod%2==0) or (f.color == 1 and hod%2==1)
+		whatColorIsMoving = (f.color == 0 and hod%2==0) or (f.color == 1 and hod%2==1)
 		
-		if f.clicked and b: 
+		if f.clicked and whatColorIsMoving: 
 			result = f.move(event, desk, hod)
-			hod = result[0]
+			
+			hod = result
 			last_one = f
-			if result[1]:
-				search_n_kill(f.x,f.y, last_one)
+			print(last_one.isMoving)
 
-
-		if x < (f.x+1)*64+284 and x >= f.x*64+284 and y >= f.y*64+104 and y < (f.y+1)*64+104 and b and not(last_one):
+		if x < (f.x+1)*64+284 and x >= f.x*64+284 and y >= f.y*64+104 and y < (f.y+1)*64+104 and whatColorIsMoving and not(last_one):
 			f.clicked = True
 			r = True
 		else:
@@ -89,10 +88,14 @@ def render():
 	desk_sc = pygame.Surface((512,512)).convert_alpha()
 	desk_sc.set_colorkey((0,0,0))
 	desk_sc.blit(pics_loading.visuals_loading()[0], (0,0))
-
+	
 	for figura in figurs:
 		figura.draw(desk_sc, desk)
+		if figura.justEndedMoving:
+			figura.justEndedMoving = False
+			search_n_kill(figura.x, figura.y, figura)
 
+	pawn_to_queen()
 	if hod%2==0: shod= 'Ход белых'
 	else: shod = 'Ход чёрных'
 	hodt = font.render(shod, 1, (220,220,220))
@@ -103,6 +106,7 @@ def render():
 	return rg
 
 while not finished: #main cycle
+	ticker+=1
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			exit()
