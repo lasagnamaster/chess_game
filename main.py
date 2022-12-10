@@ -14,9 +14,9 @@ pygame.display.set_caption("Chess'N'Guns")
 FPS = 60
 clock = pygame.time.Clock()
 
-figurs = [figures.Pawn(x = 0, y = 1, color = 1), figures.Pawn(x = 1, y = 1, color = 1),
-		  figures.Pawn(x = 0, y = 6, color = 0), figures.Pawn(x = 5, y = 6, color = 0),
-		  figures.Pawn(x = 1, y = 5, color = 1), 
+figurs = [figures.Pawn(x = 0, y = 1, color = 1, figures_trans= 255), figures.Pawn(x = 1, y = 1, color = 1, figures_trans= 255),
+		  figures.Pawn(x = 0, y = 6, color = 0,figures_trans= 255 ), figures.Pawn(x = 5, y = 6, color = 0,figures_trans= 255),
+		  figures.Pawn(x = 1, y = 5, color = 1,figures_trans= 255),
 		  figures.Ladya(x = 7, y = 0, color = 1), figures.Ladya(x = 0, y = 0, color = 1),
 		  figures.Ladya(x = 7, y = 7, color = 0), figures.Ladya(x = 0, y = 7, color = 0),
 		  figures.Bishop(x = 6, y = 0, color = 1), figures.Bishop(x = 1, y = 0, color = 1),

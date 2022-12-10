@@ -9,7 +9,7 @@ class Figure:
 	surf - desk
 	self.surf - pics of figures
 	"""
-	def __init__(self,x = 0, y = 0, color = 0):
+	def __init__(self,x = 0, y = 0, color = 0, figures_trans = 255):
 		self.x = x
 		self.y = y
 		self.x1 = self.x*64
@@ -79,8 +79,8 @@ class Figure:
 
 
 class Pawn(Figure):
-	def __init__(self,x,y, color):
-		super().__init__(x,y, color)
+	def __init__(self,x,y, color, figures_trans):
+		super().__init__(x,y, color, figures_trans)
 	
 	def draw(self, surf, desk):
 		desk[self.y][self.x] = self.color

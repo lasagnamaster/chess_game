@@ -37,7 +37,7 @@ def move_animation(obj):
 	#не смотреть, не физики не поймут
 	obj.ticker += 0.01
 	obj.vx = (math.sqrt((obj.x1 - obj.x0)**2 + (obj.y0 - obj.y1)**2)*(2**0.5))*math.sin(obj.ticker)* math.cos(obj.an)
-	obj.vy = (math.sqrt((obj.x1 - obj.x0)**2 + (obj.y0 - obj.y1)**2)*(2**0.5))*math.sin(obj.ticker)*math.sin(obj.an)
+	obj.vy = (math.sqrt((obj.x1 - obj.x0)**2 + (obj.y0 - obj.y1)**2)*(2**0.5))*math.sin(obj.ticker)* math.sin(obj.an)
 	obj.x1 = obj.x1 + obj.vx
 	obj.y1 = obj.y1 + obj.vy
 	if obj.ticker >= 0.3:
@@ -49,7 +49,10 @@ def move_animation(obj):
 		obj.x1 = obj.x*64
 		obj.y1 = obj.y*64
 		obj.ticker = 0
+	if obj.ticker >= 0.2:
 		obj.justEndedMoving = True
+	#if obj.ticker <=0.2 and obj.ticker >= 0.3:
+
 
 def AnimationUgol(obj):
 	if obj.x1 - obj.x0 == 0:
