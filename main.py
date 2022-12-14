@@ -5,8 +5,7 @@ pygame.init()
 WIDTH = 1080
 HEIGHT = 720
 
-font = pygame.font.SysFont('Comic Sans', 40)
-
+font = pygame.font.SysFont('Times New Roman', 32)
 
 sc = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("Chess'N'Guns")
@@ -14,22 +13,33 @@ pygame.display.set_caption("Chess'N'Guns")
 FPS = 60
 clock = pygame.time.Clock()
 
-figurs = [figures.Pawn(x = 0, y = 1, color = 1, figures_trans= 255), figures.Pawn(x = 1, y = 1, color = 1, figures_trans= 255),
-		  figures.Pawn(x = 0, y = 6, color = 0,figures_trans= 255 ), figures.Pawn(x = 5, y = 6, color = 0,figures_trans= 255),
-		  figures.Pawn(x = 1, y = 5, color = 1,figures_trans= 255),
-		  figures.Ladya(x = 7, y = 0, color = 1), figures.Ladya(x = 0, y = 0, color = 1),
+figurs = [figures.Pawn(x = 0, y = 6, color = 0), figures.Pawn(x = 1, y = 6, color = 0),
+		  figures.Pawn(x = 2, y = 6, color = 0), figures.Pawn(x = 3, y = 6, color = 0),
+		  figures.Pawn(x = 4, y = 6, color = 0), figures.Pawn(x = 5, y = 6, color = 0),
+		  figures.Pawn(x = 6, y = 6, color = 0), figures.Pawn(x = 7, y = 6, color = 0),
+		  figures.Pawn(x = 0, y = 1, color = 1), figures.Pawn(x = 1, y = 1, color = 1),
+		  figures.Pawn(x = 2, y = 1, color = 1), figures.Pawn(x = 3, y = 1, color = 1),
+		  figures.Pawn(x = 4, y = 1, color = 1), figures.Pawn(x = 5, y = 1, color = 1),
+		  figures.Pawn(x = 6, y = 1, color = 1), figures.Pawn(x = 7, y = 1, color = 1),
+
 		  figures.Ladya(x = 7, y = 7, color = 0), figures.Ladya(x = 0, y = 7, color = 0),
-		  figures.Bishop(x = 6, y = 0, color = 1), figures.Bishop(x = 1, y = 0, color = 1),
-		  figures.Bishop(x = 6, y = 7, color = 0), figures.Bishop(x = 1, y = 7, color = 0),
-		  figures.Horse(x = 5, y = 0, color = 1), figures.Horse(x = 2, y = 0, color = 1),
-		  figures.Horse(x = 5, y = 7, color = 0), figures.Horse(x = 2, y = 7, color = 0),
-		  figures.Queen(x = 4, y = 0, color = 1), figures.Queen(x = 3, y = 7, color = 0),
-		  figures.King(x = 3, y = 0, color = 1), figures.King(x = 4, y = 7, color = 0)]
+		  figures.Ladya(x = 7, y = 0, color = 1), figures.Ladya(x = 0, y = 0, color = 1),
+		  figures.Horse(x = 6, y = 7, color = 0), figures.Horse(x = 1, y = 7, color = 0), 
+		  figures.Horse(x = 6, y = 0, color = 1), figures.Horse(x = 1, y = 0, color = 1), 
+		  figures.Bishop(x = 5, y = 7, color = 0), figures.Bishop(x = 2, y = 7, color = 0), 
+		  figures.Bishop(x = 5, y = 0, color = 1), figures.Bishop(x = 2, y = 0, color = 1), 
+		  figures.Queen(x = 4, y = 7, color = 0), figures.Queen(x = 3, y = 0, color = 1), 
+		  figures.King(x = 3, y = 7, color = 0),
+		  figures.King(x = 4, y = 0, color = 1)]
 
 desk = [[-1 for i in range(8)] for j in range(8)]
 finished = False
 ticker = 0
 hod = 0
+mat = False
+
+for f in figurs:
+	f.FiguresImport(figurs)
 
 def search_n_kill(x,y,last_one):
 	global figurs
@@ -49,12 +59,11 @@ def click(event):
 	сумасшедшая функция, отвечающая за нажатие
 	здесь производится нажатие на фигуру и проверка, если игрок делает верный ход нажатой фигуры
 	"""
-	global figurs, desk, hod, ticker, started_ticker
+	global figurs, desk, hod, ticker, started_ticker, mat
 	x = event.pos[0]
 	y = event.pos[1]
 	r = False
 	change_hod = hod
-	
 	for f in figurs:
 		last_one = 0
 		whatColorIsMoving = (f.color == 0 and hod%2==0) or (f.color == 1 and hod%2==1)
@@ -62,11 +71,14 @@ def click(event):
 		if f.clicked and whatColorIsMoving: 
 			result = f.move(event, desk, hod)
 			
-			hod = result
+			hod = result[0]
+			mat = result[2]
 			last_one = f
-			print(last_one.isMoving)
+			if result[1]:
+				search_n_kill(f.x,f.y,last_one)
 
 		if x < (f.x+1)*64+284 and x >= f.x*64+284 and y >= f.y*64+104 and y < (f.y+1)*64+104 and whatColorIsMoving and not(last_one):
+			figures.defendTheKing(f,desk)
 			f.clicked = True
 			r = True
 		else:
@@ -80,7 +92,7 @@ def click(event):
 	return False
 
 def render():
-	global desk_im
+	global desk_im, mat
 	rg = pygame.Surface((1080,720))
 
 	rg.fill((50,50,50))
@@ -88,25 +100,44 @@ def render():
 	desk_sc = pygame.Surface((512,512)).convert_alpha()
 	desk_sc.set_colorkey((0,0,0))
 	desk_sc.blit(pics_loading.visuals_loading()[0], (0,0))
+
+	shah = ''
+	if hod%2==1: nameOfTheColor = 1 
+	else: nameOfTheColor = 0
 	
 	for figura in figurs:
 		figura.draw(desk_sc, desk)
-		if figura.justEndedMoving:
-			figura.justEndedMoving = False
-			search_n_kill(figura.x, figura.y, figura)
+		if type(figura)==figures.King and figura.color==nameOfTheColor:
+			if figura.underAttack and not(mat):
+				shah = 'Шах'
+			elif figura.underAttack and mat: 
+				shah = 'Мат'
+			else: shah = ''
 
 	pawn_to_queen()
 	if hod%2==0: shod= 'Ход белых'
 	else: shod = 'Ход чёрных'
+	
 	hodt = font.render(shod, 1, (220,220,220))
+	shaht = font.render(shah, 1, (240,50,50))
+
 	rg.blit(hodt, (100, 100))
+	rg.blit(shaht, (100, 200))
+
+	if mat:
+		gameOverScreen()
 
 	rg.blit(desk_sc, (284, 104))
 
 	return rg
 
+def gameOverScreen():
+	pass
+
 while not finished: #main cycle
 	ticker+=1
+	for f in figurs:
+		f.FiguresImport(figurs)
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			exit()
