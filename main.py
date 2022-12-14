@@ -21,6 +21,7 @@ figurs = [figures.Pawn(x = 0, y = 6, color = 0), figures.Pawn(x = 1, y = 6, colo
 		  figures.Pawn(x = 2, y = 1, color = 1), figures.Pawn(x = 3, y = 1, color = 1),
 		  figures.Pawn(x = 4, y = 1, color = 1), figures.Pawn(x = 5, y = 1, color = 1),
 		  figures.Pawn(x = 6, y = 1, color = 1), figures.Pawn(x = 7, y = 1, color = 1),
+
 		  figures.Ladya(x = 7, y = 7, color = 0), figures.Ladya(x = 0, y = 7, color = 0),
 		  figures.Ladya(x = 7, y = 0, color = 1), figures.Ladya(x = 0, y = 0, color = 1),
 		  figures.Horse(x = 6, y = 7, color = 0), figures.Horse(x = 1, y = 7, color = 0), 

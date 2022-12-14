@@ -173,6 +173,7 @@ class Pawn(Figure):
 	def __init__(self,x,y, color):
 		super().__init__(x,y, color)
 		self.attackingSteps = []
+
 	
 	def draw(self, surf, desk):
 		desk[self.y][self.x] = self.color
