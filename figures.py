@@ -48,6 +48,7 @@ class Figure:
 	def move(self, event, desk, hod):
 		global castlingLadyas, mat
 		needToKill = False
+		mat = False
 		if self.allowedToMove: 
 			steps = self.goes(desk)
 			if self.defendingTheKing: steps = self.steps_m
@@ -91,7 +92,7 @@ class Figure:
 							self.defendingTheKing = False
 							hod += 1
 							for f in self.figures:
-								if f.color!=self.color:
+								if f.color!=self.color and type(f)==King:
 									mat = defendTheKing(f, desk)
 									break
 							return hod, needToKill, mat
@@ -166,7 +167,11 @@ class Figure:
 						self.defendingTheKing = True
 						self.steps_m[i][j] = True
 
+		#print('self steps:', type(self))
+		#desk_print(self.steps_m)
+		#print(self.steps_m == [[False for i in range(8)] for j in range(8)])
 		if type(self)==King and self.steps_m == [[False for i in range(8)] for j in range(8)]:
+			#print(type(self)==King, self.steps_m == [[False for i in range(8)] for j in range(8)])
 			mat = True
 
 class Pawn(Figure):

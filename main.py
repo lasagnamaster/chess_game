@@ -27,8 +27,8 @@ figurs = [figures.Pawn(x = 0, y = 6, color = 0), figures.Pawn(x = 1, y = 6, colo
 		  figures.Horse(x = 6, y = 0, color = 1), figures.Horse(x = 1, y = 0, color = 1), 
 		  figures.Bishop(x = 5, y = 7, color = 0), figures.Bishop(x = 2, y = 7, color = 0), 
 		  figures.Bishop(x = 5, y = 0, color = 1), figures.Bishop(x = 2, y = 0, color = 1), 
-		  figures.Queen(x = 4, y = 7, color = 0), figures.Queen(x = 3, y = 0, color = 1), 
-		  figures.King(x = 3, y = 7, color = 0),
+		  figures.Queen(x = 3, y = 7, color = 0), figures.Queen(x = 3, y = 0, color = 1), 
+		  figures.King(x = 4, y = 7, color = 0),
 		  figures.King(x = 4, y = 0, color = 1)]
 
 desk = [[-1 for i in range(8)] for j in range(8)]
@@ -72,6 +72,7 @@ def click(event):
 			
 			hod = result[0]
 			mat = result[2]
+			print(mat)
 			last_one = f
 			if result[1]:
 				search_n_kill(f.x,f.y,last_one)
@@ -110,6 +111,7 @@ def render():
 			if figura.underAttack and not(mat):
 				shah = 'Шах'
 			elif figura.underAttack and mat: 
+				
 				shah = 'Мат'
 			else: shah = ''
 
