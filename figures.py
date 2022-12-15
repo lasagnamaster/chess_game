@@ -48,6 +48,7 @@ class Figure:
 	def move(self, event, desk, hod):
 		global castlingLadyas, mat
 		needToKill = False
+		mat = False
 		if self.allowedToMove: 
 			steps = self.goes(desk)
 			if self.defendingTheKing: steps = self.steps_m
@@ -74,7 +75,6 @@ class Figure:
 											else:
 												forced_move(castlingLadya, desk, j+1, self.y)
 											castlingEnded = True
-											castlingLadyas = []
 							if desk[i][j]!=self.color and desk[i][j]!=-1: needToKill = True
 							self.firstMove = False
 							self.x0 = j*64
@@ -89,9 +89,10 @@ class Figure:
 							self.clicked = False
 							self.areStepsCreated = False
 							self.defendingTheKing = False
+							castlingLadyas = []
 							hod += 1
 							for f in self.figures:
-								if f.color!=self.color:
+								if f.color!=self.color and type(f)==King:
 									mat = defendTheKing(f, desk)
 									break
 							return hod, needToKill, mat
@@ -173,7 +174,6 @@ class Pawn(Figure):
 	def __init__(self,x,y, color):
 		super().__init__(x,y, color)
 		self.attackingSteps = []
-
 	
 	def draw(self, surf, desk):
 		desk[self.y][self.x] = self.color
@@ -464,7 +464,7 @@ class King(Figure):
 
 		
 		self.castlingMoves = [[False for i in range(8)] for j in range(8)] #Рокировка
-		if self.firstMove and not(self.underAttack):
+		if self.firstMove and not(self.underAttack) and self.clicked:
 			for f in self.figures:
 				if f.color == self.color and type(f)==Ladya and f.firstMove:
 					denyCastling = False
@@ -476,9 +476,14 @@ class King(Figure):
 						for i in range(self.x+1, f.x):
 							if desk[self.y][i] != -1: denyCastling = True
 							castlingKoef = 1
+					
 					if not(denyCastling):
 						if not(f in castlingLadyas):
-							castlingLadyas.append(f)
+							if len(castlingLadyas)!=0:
+								if f.color==castlingLadyas[0].color:
+									castlingLadyas.append(f)
+							else:
+								castlingLadyas.append(f)
 
 						steps[self.y][self.x+2*castlingKoef] = True
 						self.castlingMoves[self.y][self.x+2*castlingKoef] = True
