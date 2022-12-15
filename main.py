@@ -1,5 +1,7 @@
 import pygame, math, steps, figures, pics_loading
 
+import visuals
+
 pygame.init()
 
 WIDTH = 1080
@@ -13,7 +15,7 @@ pygame.display.set_caption("Chess'N'Guns")
 FPS = 60
 clock = pygame.time.Clock()
 
-figurs1 = [figures.Pawn(x = 0, y = 6, color = 0), figures.Pawn(x = 1, y = 6, color = 0),
+figurs = [figures.Pawn(x = 0, y = 6, color = 0), figures.Pawn(x = 1, y = 6, color = 0),
 		  figures.Pawn(x = 2, y = 6, color = 0), figures.Pawn(x = 3, y = 6, color = 0),
 		  figures.Pawn(x = 4, y = 6, color = 0), figures.Pawn(x = 5, y = 6, color = 0),
 		  figures.Pawn(x = 6, y = 6, color = 0), figures.Pawn(x = 7, y = 6, color = 0),
@@ -32,7 +34,7 @@ figurs1 = [figures.Pawn(x = 0, y = 6, color = 0), figures.Pawn(x = 1, y = 6, col
 		  figures.King(x = 3, y = 7, color = 0),
 		  figures.King(x = 4, y = 0, color = 1)]
 
-figurs = [figures.Ladya(x = 7, y = 7, color = 0), figures.Ladya(x = 0, y = 7, color = 0),
+figurs1 = [figures.Ladya(x = 7, y = 7, color = 0), figures.Ladya(x = 0, y = 7, color = 0),
 		  figures.Ladya(x = 7, y = 0, color = 1), figures.Ladya(x = 0, y = 0, color = 1),
 		  figures.King(x = 3, y = 7, color = 0),
 		  figures.King(x = 4, y = 0, color = 1)]
@@ -144,6 +146,8 @@ while not finished: #main cycle
 	for f in figurs:
 		f.FiguresImport(figurs)
 	for event in pygame.event.get():
+		if event.type == pygame.MOUSEMOTION:
+			visuals.IsGunRotate()
 		if event.type == pygame.QUIT:
 			exit()
 		if event.type == pygame.MOUSEBUTTONDOWN:

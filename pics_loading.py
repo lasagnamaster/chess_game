@@ -8,7 +8,7 @@ def figures_loading():
     return figures_pics
 
 def visuals_loading():
-    visuals_names = ['clipart-2d-chess-set-chessboard-512x512-e3cb.png', 'green.png']
+    visuals_names = ['clipart-2d-chess-set-chessboard-512x512-e3cb.png', 'green.png', 'Bazooka.png']
     visuals_pics = [pygame.image.load('images/visuals/'+path).convert_alpha() for path in visuals_names]
     return visuals_pics
 
