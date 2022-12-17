@@ -199,7 +199,7 @@ class Pawn(Figure):
 		if self.color == 0: k = -1 #white
 		else: k = 1 #black
 		if not(self.y+2*k == 8 or self.y+2*k == -1 or self.y+2*k == -2 or self.y+2*k == 9):
-			if self.steps == 0 and not(desk[self.y + 2*k][self.x]!=-1 or desk[self.y + k][self.x]!=-1): #двигаем пешку первым ходом
+			if self.firstMove and not(desk[self.y + 2*k][self.x]!=-1 or desk[self.y + k][self.x]!=-1): #двигаем пешку первым ходом
 				steps[self.y + 2*k][self.x]=True
 		if not(self.y + k == 8 or self.y + k == -1):
 			if not(desk[self.y + k][self.x]!=-1):

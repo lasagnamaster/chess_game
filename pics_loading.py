@@ -8,9 +8,12 @@ def figures_loading():
     return figures_pics
 
 def visuals_loading():
-    visuals_names = ['clipart-2d-chess-set-chessboard-512x512-e3cb.png', 'green.png', 'Bazooka.png']
+    visuals_names = ['clipart-2d-chess-set-chessboard-512x512-e3cb.png', 'green.png', 'Bazooka.png', 'menu-back.png', 'background.png']
     visuals_pics = [pygame.image.load('images/visuals/'+path).convert_alpha() for path in visuals_names]
     return visuals_pics
-
+def button_loading():
+    button_names = ['start.png', 'start2.png', 'quit.png', 'quit2.png', 'menu.png', 'menu2.png', 'resume.png', 'resume2.png']
+    button_pics = [pygame.image.load('images/buttons/' + path).convert_alpha() for path in button_names]
+    return button_pics
 def __main__():
     print('you were not supposed to use this as main')
