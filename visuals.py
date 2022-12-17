@@ -5,12 +5,12 @@ ColorSpeed = 4
 def scale_down(obj, pic1, pic2, surf, desk):
 	if obj.clicked and obj.allowedToMove:
 		if not(obj.transformed):
-			obj.sx-=4
-			obj.sy-=4
-			if obj.color == 1: obj.surf = pygame.transform.scale(pic1, (obj.sx, obj.sy))
-			elif obj.color == 0: obj.surf = pygame.transform.scale(pic2, (obj.sx, obj.sy))
+			obj.s[0]-=4
+			obj.s[1]-=4
+			if obj.color == 1: obj.surf = pygame.transform.scale(pic1, (obj.s[0], obj.s[1]))
+			elif obj.color == 0: obj.surf = pygame.transform.scale(pic2, (obj.s[0], obj.s[1]))
 
-			if obj.sx<=50:
+			if obj.s[0]<=50:
 				obj.transformed = True
 	
 	else: 
@@ -23,8 +23,7 @@ def scale_down(obj, pic1, pic2, surf, desk):
 		else:
 			pic2.set_alpha(obj.figures_trans)
 			obj.surf.blit(pic2,(0,0))
-		obj.sx = 64
-		obj.sy = 64
+		obj.s = [64, 64]
 		obj.transformed = False 
 
 def trans(obj):
@@ -62,3 +61,6 @@ def AnimationUgol(obj):
 	else:
 		obj.an = math.atan((obj.y1 - obj.y0) / (obj.x1 - obj.x0))
 	if -obj.x1 + obj.x0 < 0: obj.an += math.pi
+
+if __name__ == "__main__":
+    print('you were not supposed to use this as main')
