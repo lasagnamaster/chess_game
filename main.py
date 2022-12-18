@@ -1,4 +1,4 @@
-import pygame, math, steps, figures, pics_loading, Button, config, copy
+import pygame, math, steps, figures, pics_loading, Button, config, copy, random
 
 import visuals
 
@@ -8,26 +8,27 @@ WIDTH = 1080
 HEIGHT = 720
 
 font = pygame.font.SysFont('Times New Roman', 32)
+font = pygame.font.Font('DungeonChunk.ttf', 32)
 
-#pygame.mixer.music.load('music/menu1.mp3')
-#pygame.mixer.music.play()
-
+mainmenu_music_is_playing = 0
+game_music_is_playing = 0
+pause_music_is_playing = 0
+volume = 0
+UpVolume = False
 sc = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("Chess'N'Guns")
 
 FPS = 60
 clock = pygame.time.Clock()
 
-buttons = [Button.Start(x = 390, y = 200, image = pics_loading.button_loading()[0], under_mouse_image= pics_loading.button_loading()[1]),
-		   Button.Quit(x = 390, y = 350, image = pics_loading.button_loading()[2], under_mouse_image= pics_loading.button_loading()[3])]
+buttons = [Button.Start(x = 390, y = 200, image = pics_loading.BUTTON_PICS[0], under_mouse_image= pics_loading.BUTTON_PICS[1]),
+		   Button.Quit(x = 390, y = 350, image = pics_loading.BUTTON_PICS[2], under_mouse_image= pics_loading.BUTTON_PICS[3])]
 
-buttons_pause = [Button.Resume(x = 390, y = 200, image = pics_loading.button_loading()[6], under_mouse_image= pics_loading.button_loading()[7]),
-				 Button.Menu_Open(x = 390, y = 350, image = pics_loading.button_loading()[4], under_mouse_image= pics_loading.button_loading()[5])]
+buttons_pause = [Button.Resume(x = 390, y = 200, image = pics_loading.BUTTON_PICS[6], under_mouse_image= pics_loading.BUTTON_PICS[7]),
+				 Button.Menu_Open(x = 390, y = 350, image = pics_loading.BUTTON_PICS[4], under_mouse_image= pics_loading.BUTTON_PICS[5])]
 
 figurs = config.figurs_start_posssison
-start_posisosn = []
-for f in figurs:
-	start_posisosn.append(f)
+
 
 figurs1 = [figures.Ladya(x = 7, y = 7, color = 0), figures.Ladya(x = 0, y = 7, color = 0),
 		  figures.Ladya(x = 7, y = 0, color = 1), figures.Ladya(x = 0, y = 0, color = 1),
@@ -122,32 +123,65 @@ def click(event):
 		f.clicked = False
 	return False
 
+def UpVolumeFun():
+	global volume
+	if UpVolume == True:
+		if volume <= 0.1:
+			volume = 0.1
+		else:
+			volume -= 0.01
+	else:
+		if volume >= 1:
+			volume = 1
+		else:
+			volume += 0.01
+	pygame.mixer.music.set_volume(volume)
+	if Button.Menu == False and Button.Pause_Menu == False:
+		pygame.mixer.music.set_volume(volume)
 def render():
-	global desk_im, mat
-
+	global desk_im, mat, mainmenu_music_is_playing, game_music_is_playing, pause_music_is_playing, volume, UpVolume
 	if Button.Menu == True:
-		rg = pygame.Surface((1080,720))
-		rg.blit(pics_loading.visuals_loading()[3], (0,0))
-		#pygame.mixer.music.unpause()
+		pause_music_is_playing = 0
+		game_music_is_playing = 0
+		if not mainmenu_music_is_playing:
+			pygame.mixer.music.load(pics_loading.MUSIC[random.randint(0,2)])
+			pygame.mixer.music.play()
+			mainmenu_music_is_playing = 1
 
+		rg = pygame.Surface((1080,720))
+		rg.blit(pics_loading.VISUALS_PICS[3], (0,0))
 		for b in buttons:
 			b.draw(rg)
+
 	elif Button.Pause_Menu == True:
+		mainmenu_music_is_playing = 0
+		if not pause_music_is_playing:
+			UpVolume = True
+			pause_music_is_playing = 1
+
 		rg = pygame.Surface((1080,720))
-		#pygame.mixer.music.play()
-		rg.blit(pics_loading.visuals_loading()[3], (0,0))
+		rg.blit(pics_loading.VISUALS_PICS[5], (0,0))
 		for b in buttons_pause:
 			b.draw(rg)
 	else:
-		#pygame.mixer.music.play()
+		pause_music_is_playing = 0
+		mainmenu_music_is_playing = 0
+		if not game_music_is_playing:
+			pygame.mixer.music.load(pics_loading.MUSIC[random.randint(3,6)])
+			pygame.mixer.music.play()
+			game_music_is_playing = 1
+
+		else:
+			#pygame.mixer.music.set_volume(volume)
+			UpVolume = False
 		rg = pygame.Surface((1080,720))
 
-		rg.blit(pics_loading.visuals_loading()[4], (0,0))
+		rg.blit(pics_loading.VISUALS_PICS[4], (0,0))
 
 		desk_sc = pygame.Surface((512,512)).convert_alpha()
 		desk_sc.set_colorkey((0,0,0))
 		desk_sc.set_alpha(255)
-		desk_sc.blit(pics_loading.visuals_loading()[0], (0,0))
+		desk_sc.blit(pics_loading.VISUALS_PICS[0], (0,0))
 
 		shah = ''
 		if hod%2==1: nameOfTheColor = 1
@@ -163,8 +197,8 @@ def render():
 				else: shah = ''
 
 		pawn_to_queen()
-		if hod%2==0: shod= 'Ход белых'
-		else: shod = 'Ход чёрных'
+		if hod%2==0: shod= 'BLACK NIGGER'
+		else: shod = 'WHITE POWER'
 
 		hodt = font.render(shod, 1, (220,220,220))
 		shaht = font.render(shah, 1, (240,50,50))
@@ -195,7 +229,7 @@ def Which_Button_Clicked():
 while not finished: #main cycle
 	ticker+=1
 	IsQuit()
-
+	UpVolumeFun()
 	for f in figurs:
 		f.FiguresImport(figurs)
 	for event in pygame.event.get():
