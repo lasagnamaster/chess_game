@@ -17,8 +17,8 @@ class Shop_button():
         payment = self.figure.payment
         self.blocked = True
 
-        if nameOfTheColor == 1 and coins[1] >= payment: self.blocked = False
-        elif nameOfTheColor == 0 and coins[0] >= payment: self.blocked = False 
+        if nameOfTheColor == 1 and coins[1] >= payment*2: self.blocked = False
+        elif nameOfTheColor == 0 and coins[0] >= payment*2: self.blocked = False 
         
         if self.blocked:
             self.surf.blit(self.pic[2], (0,0))
@@ -57,9 +57,9 @@ class Shop_button():
                 figurs.append(f)
 
                 if figureClicked.color == 0:
-                    coins[0]-=payment
+                    coins[0]-=payment*2
                 else:
-                    coins[1]-=payment
+                    coins[1]-=payment*2
                 pics_loading.SOUNDS[random.randint(5, 8)].play()
                 figurs.remove(figureClicked)
 

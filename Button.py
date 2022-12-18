@@ -1,6 +1,4 @@
 import pygame, pics_loading
-import button
-
 import config
 
 SCREEN_HEIGHT = 100
@@ -20,19 +18,19 @@ class Button():
         self.x = x
         self.y = y
         self.clicked = False
-
-class Start(Button):
-    def __init__(self, x, y, image, under_mouse_image):
-        super().__init__(x, y, image, under_mouse_image)
-
+    
     def draw(self, surf):
         pos = pygame.mouse.get_pos()
-        self.screen.blit(self.image, (0, 0))
+        self.screen.blit(self.image, (0,0))
         if self.rect.collidepoint(pos):
             self.image = self.image2
         else:
             self.image = self.image1
         surf.blit(self.screen, (self.x, self.y))
+
+class Start(Button):
+    def __init__(self, x, y, image, under_mouse_image):
+        super().__init__(x, y, image, under_mouse_image)
 
     def click(self):
         global Menu, Pause_Menu, Is_New_Game
@@ -43,7 +41,6 @@ class Start(Button):
             if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
                 self.clicked = True
                 Is_New_Game = True
-                print(config.figurs_start_posssison)
                 Menu = False
                 Pause_Menu = False
 
@@ -51,14 +48,6 @@ class Resume(Button):
     def __init__(self, x, y, image, under_mouse_image):
         super().__init__(x, y, image, under_mouse_image)
 
-    def draw(self, surf):
-        pos = pygame.mouse.get_pos()
-        self.screen.blit(self.image, (0,0))
-        if self.rect.collidepoint(pos):
-            self.image = self.image2
-        else:
-            self.image = self.image1
-        surf.blit(self.screen, (self.x, self.y))
     def click(self):
         global Menu, Pause_Menu
         pos = pygame.mouse.get_pos()
@@ -75,16 +64,6 @@ class Quit(Button):
     def __init__(self, x, y, image, under_mouse_image):
         super().__init__(x, y, image, under_mouse_image)
 
-    def draw(self, surf):
-        pos = pygame.mouse.get_pos()
-        self.screen.blit(self.image, (0, 0))
-        if self.rect.collidepoint(pos):
-            self.image = self.image2
-        else:
-            self.image = self.image1
-        surf.blit(self.screen, (self.x, self.y))
-
-        surf.blit(self.screen, (self.x, self.y))
     def click(self):
         global Menu, Finish
         pos = pygame.mouse.get_pos()
@@ -97,16 +76,6 @@ class Menu_Open(Button):
     def __init__(self, x, y, image, under_mouse_image):
         super().__init__(x, y, image, under_mouse_image)
 
-    def draw(self, surf):
-        pos = pygame.mouse.get_pos()
-        self.screen.blit(self.image, (0, 0))
-        if self.rect.collidepoint(pos):
-            self.image = self.image2
-        else:
-            self.image = self.image1
-        surf.blit(self.screen, (self.x, self.y))
-
-        surf.blit(self.screen, (self.x, self.y))
     def click(self):
         global Menu, Finish
         pos = pygame.mouse.get_pos()

@@ -135,8 +135,10 @@ class Figure:
 								if f.color!=self.color and type(f)==King:
 									mat = defendTheKing(f, desk)
 									break
+							
 							self.steps_m = [[False for i in range(8)] for j in range(8)]
 							return hod, needToKill, mat
+		self.steps_m = [[False for i in range(8)] for j in range(8)]
 		self.areStepsCreated = False
 		return hod, needToKill, mat
 
@@ -183,7 +185,6 @@ class Figure:
 		self.defendingTheKing = False
 		self.steps_m = [[False for i in range(8)] for j in range(8)]
 		steps = self.goes(desk)
-
 		for i in range(len(steps)): #тут происходят призрачные шаги, проверка, что будет с королём при различных ходах фигуры
 			for j in range(len(steps[i])):
 				if steps[i][j]:
@@ -215,6 +216,9 @@ class Figure:
 
 		canSomeoneGo = False
 		for f in self.figures:
+			if f.color == self.color:
+				print(type(f), f.color)
+				desk_print(f.steps_m)
 			if f.color==self.color and f.steps_m != [[False for i in range(8)] for j in range(8)]:
 				canSomeoneGo = True
 		if type(self)==King and self.steps_m == [[False for i in range(8)] for j in range(8)] and not(canSomeoneGo):
@@ -228,10 +232,10 @@ class Pawn(Figure):
 	
 	def draw(self, surf, desk):
 		desk[self.y][self.x] = self.color
-		gun_surf = pygame.Surface((256,256)).convert_alpha()
+		gun_surf = pygame.Surface((0,0)).convert_alpha()
 		if self.clicked:
 			self.steps_draw(surf, desk)
-			gun_surf = visuals.gun_move_and_rotate(self, pics_loading.visuals_loading()[2])
+			gun_surf = visuals.gun_move_and_rotate(self, pics_loading.VISUALS_PICS[2])
 		else:
 			self.gun_trans = 0
 
@@ -393,7 +397,7 @@ class Horse(Figure):
 class Queen(Figure):
 	def __init__(self,x,y, color):
 		super().__init__(x,y, color)
-		self.payment = 35
+		self.payment = 40
 
 	def draw(self, surf, desk):
 		desk[self.y][self.x] = self.color

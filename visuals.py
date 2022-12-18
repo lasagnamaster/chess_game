@@ -61,7 +61,8 @@ def gun_move_and_rotate(obj, pic1):
 		obj.gun_trans = 255
 	else:
 		obj.gun_trans += 16
-	gun_surf = pygame.Surface((256,256)).convert_alpha()
+	gun_surf = pygame.Surface((256,256))
+	gun_surf.set_colorkey((0,0,0))
 	x0,y0 = pygame.mouse.get_pos()
 	if IsRotate == True:
 		if x0 == (obj.x1 + 284+32):
