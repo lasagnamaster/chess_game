@@ -1,7 +1,29 @@
-import pygame, pics_loading, visuals, math, copy
+import pygame, pics_loading, visuals, math, copy, random, shop
 
 castlingLadyas = []
 mat = False
+
+def clear():
+	file = open("memory.txt","w") #Очистка файла
+	file.write('')
+	file.close()
+
+def fileWrite(info):
+	file = open("memory.txt","a")
+	for e in info:
+		file.write(str(e)+' ')
+	file.write('\n')
+	file.close()
+
+def fileRead():
+	file = open("memory.txt","r")
+	s = "balaboba"
+	fullInfo = []
+	while s:
+		s = file.readline().strip().split()
+		fullInfo.append(s)
+	file.close()
+	return fullInfo
 
 class Figure:
 	"""
@@ -28,15 +50,13 @@ class Figure:
 		self.clicked = False
 		self.transformed = False
 		self.surf = pygame.Surface((64,64))
-		self.sx = 64
-		self.sy = 64
+		self.s = [64, 64]
 		self.steps = 0
 		self.steps_m = [[False for i in range(8)] for j in range(8)]
 		self.areStepsCreated = False
 		self.trans = 25
 		self.figures_trans = 255
 		self.isMoving = False
-		self.an = 0
 		self.vx = 0
 		self.vy = 0
 		self.ticker = 0
@@ -44,12 +64,15 @@ class Figure:
 		self.allowedToMove = True
 		self.defendingTheKing = False
 		self.firstMove = True
+		self.health = 100
+		self.payment = 0
 		self.gun_trans = 0
 
 	def move(self, event, desk, hod):
 		global castlingLadyas, mat
 		needToKill = False
 		mat = False
+		wasCastling = 0
 		if self.allowedToMove: 
 			steps = self.goes(desk)
 			if self.defendingTheKing: steps = self.steps_m
@@ -61,6 +84,11 @@ class Figure:
 						steps[i][j]==False
 						if x0 < (j+1)*64+284 and x0 >= j*64+284 and y0 >= i*64+104 and y0 < (i+1)*64+104:
 
+							rook_x = 0
+							rook_y = 0
+							rook_x1 = 0
+							rook_y1 = 0
+
 							if type(self)==King: #Рокировка
 								if self.castlingMoves[i][j]:
 									castlingEnded = False
@@ -71,11 +99,20 @@ class Figure:
 												if abs(x0 - (castlingLadyas[0].x*64+284)) < abs(x0 - (castlingLadyas[1].x*64+284)): castlingLadya = castlingLadyas[0]
 												else: castlingLadya = castlingLadyas[1]
 											else: castlingLadya = castlingLadyas[0]
+											rook_x = castlingLadya.x
+											rook_y = castlingLadya.y
 											if castlingLadya.x > self.x:
 												forced_move(castlingLadya, desk, j-1, self.y)
+												rook_x1 = j-1
+												rook_y1 = self.y
 											else:
 												forced_move(castlingLadya, desk, j+1, self.y)
+												rook_x1 = j+1
+												rook_y1 = self.y
 											castlingEnded = True
+											wasCastling = 1
+
+							fileWrite([wasCastling, self.x, self.y, j, i, rook_x, rook_y, rook_x1, rook_y1])
 							if desk[i][j]!=self.color and desk[i][j]!=-1: needToKill = True
 							self.firstMove = False
 							self.x0 = j*64
@@ -83,6 +120,7 @@ class Figure:
 							desk[self.y][self.x] = -1
 							self.x = j
 							self.y = i
+							desk[i][j] = self.color
 							visuals.AnimationUgol(self)
 							self.isMoving = True
 							self.steps+=1
@@ -91,13 +129,14 @@ class Figure:
 							self.areStepsCreated = False
 							self.defendingTheKing = False
 							castlingLadyas = []
+							pics_loading.SOUNDS[random.randint(0, 5)].play()
 							hod += 1
 							for f in self.figures:
 								if f.color!=self.color and type(f)==King:
 									mat = defendTheKing(f, desk)
 									break
+							self.steps_m = [[False for i in range(8)] for j in range(8)]
 							return hod, needToKill, mat
-		
 		self.areStepsCreated = False
 		return hod, needToKill, mat
 
@@ -108,11 +147,12 @@ class Figure:
 		if type(self)==King and not(self.areStepsCreated):
 			self.steps_m = self.goes(desk)
 			self.areStepsCreated = True
+			defendTheKing(self,desk)
 		if self.allowedToMove:
 			visuals.trans(self)
 			steps = self.steps_m
 			self.areStepsCreated = True
-			green = pics_loading.visuals_loading()[1]
+			green = pics_loading.VISUALS_PICS[1]
 			green.set_alpha(self.trans)
 			for i in range(len(steps)):
 				for j in range(len(steps[i])):
@@ -143,23 +183,26 @@ class Figure:
 		self.defendingTheKing = False
 		self.steps_m = [[False for i in range(8)] for j in range(8)]
 		steps = self.goes(desk)
-		figures_temp = self.figures
-		for i in range(len(steps)):
+
+		for i in range(len(steps)): #тут происходят призрачные шаги, проверка, что будет с королём при различных ходах фигуры
 			for j in range(len(steps[i])):
 				if steps[i][j]:
+
+					figures_temp = self.figures
 					desk_temp = copy.deepcopy(desk)
+					returnTheseBack = []
+
 					desk_temp[i][j] = self.color
 					desk_temp[self.y][self.x] = -1
-					if len(attackingFigures)==1:
-						for af in attackingFigures:
-							if af.x == j and af.y == i:
-								self.allowedToMove = True
-								self.defendingTheKing = True
-								self.steps_m[i][j] = True
-								attackingFigures.remove(af)
+
+					for f in figures_temp:
+						if f.x==j and f.y==i and self.color!=f.color:
+							print(type(f), i, j)
+							figures_temp.remove(f)
+							returnTheseBack.append(f)
 
 					new_attacking_steps = self.howCanWeKillTheKing(desk_temp, figures_temp)
-
+					
 					if type(self)==King:
 						king_x = j
 						king_y = i
@@ -167,14 +210,21 @@ class Figure:
 						self.allowedToMove = True
 						self.defendingTheKing = True
 						self.steps_m[i][j] = True
+					for f in returnTheseBack:
+						figures_temp.append(f)
 
-		if type(self)==King and self.steps_m == [[False for i in range(8)] for j in range(8)]:
+		canSomeoneGo = False
+		for f in self.figures:
+			if f.color==self.color and f.steps_m != [[False for i in range(8)] for j in range(8)]:
+				canSomeoneGo = True
+		if type(self)==King and self.steps_m == [[False for i in range(8)] for j in range(8)] and not(canSomeoneGo):
 			mat = True
 
 class Pawn(Figure):
 	def __init__(self,x,y, color):
 		super().__init__(x,y, color)
 		self.attackingSteps = []
+		self.payment = 10
 	
 	def draw(self, surf, desk):
 		desk[self.y][self.x] = self.color
@@ -187,7 +237,7 @@ class Pawn(Figure):
 
 		if self.isMoving == True:
 			visuals.move_animation(self)
-		visuals.scale_down(self, pics_loading.figures_loading()[0], pics_loading.figures_loading()[1], surf, desk)
+		visuals.scale_down(self, pics_loading.FIGURES_PICS[0], pics_loading.FIGURES_PICS[1], surf, desk)
 		rect = self.surf.get_rect(center = (self.x1 +32, self.y1+ 32))
 		rect1 = self.surf.get_rect(center = (self.x1-70, self.y1-65))
 		surf.blit(gun_surf, rect1)
@@ -219,6 +269,7 @@ class Pawn(Figure):
 class Ladya(Figure):
 	def __init__(self,x,y, color):
 		super().__init__(x,y, color)
+		self.payment = 20
 
 	def draw(self, surf, desk):
 		desk[self.y][self.x] = self.color
@@ -226,7 +277,7 @@ class Ladya(Figure):
 			self.steps_draw(surf, desk)
 		if self.isMoving == True:
 			visuals.move_animation(self)
-		visuals.scale_down(self, pics_loading.figures_loading()[2], pics_loading.figures_loading()[3], surf, desk)
+		visuals.scale_down(self, pics_loading.FIGURES_PICS[2], pics_loading.FIGURES_PICS[3], surf, desk)
 
 		rect = self.surf.get_rect(center = (self.x1 +32, self.y1+ 32))
 		surf.blit(self.surf, rect)
@@ -261,6 +312,7 @@ class Ladya(Figure):
 class Bishop(Figure):
 	def __init__(self,x,y, color):
 		super().__init__(x,y, color)
+		self.payment = 15
 
 	def draw(self, surf, desk):
 		desk[self.y][self.x] = self.color
@@ -268,7 +320,7 @@ class Bishop(Figure):
 			self.steps_draw(surf, desk)
 		if self.isMoving == True:
 			visuals.move_animation(self)
-		visuals.scale_down(self, pics_loading.figures_loading()[4], pics_loading.figures_loading()[5], surf, desk)
+		visuals.scale_down(self, pics_loading.FIGURES_PICS[4], pics_loading.FIGURES_PICS[5], surf, desk)
 
 		rect = self.surf.get_rect(center = (self.x1 +32, self.y1+ 32))
 		surf.blit(self.surf, rect)
@@ -303,6 +355,7 @@ class Bishop(Figure):
 class Horse(Figure):
 	def __init__(self,x,y, color):
 		super().__init__(x,y, color)
+		self.payment = 15
 
 	def draw(self, surf, desk):
 		desk[self.y][self.x] = self.color
@@ -310,7 +363,7 @@ class Horse(Figure):
 			self.steps_draw(surf, desk)
 		if self.isMoving == True:
 			visuals.move_animation(self)
-		visuals.scale_down(self, pics_loading.figures_loading()[6], pics_loading.figures_loading()[7], surf, desk)
+		visuals.scale_down(self, pics_loading.FIGURES_PICS[6], pics_loading.FIGURES_PICS[7], surf, desk)
 
 		rect = self.surf.get_rect(center = (self.x1 +32, self.y1+ 32))
 		surf.blit(self.surf, rect)
@@ -340,6 +393,7 @@ class Horse(Figure):
 class Queen(Figure):
 	def __init__(self,x,y, color):
 		super().__init__(x,y, color)
+		self.payment = 35
 
 	def draw(self, surf, desk):
 		desk[self.y][self.x] = self.color
@@ -347,7 +401,7 @@ class Queen(Figure):
 			self.steps_draw(surf, desk)
 		if self.isMoving == True:
 			visuals.move_animation(self)
-		visuals.scale_down(self, pics_loading.figures_loading()[8], pics_loading.figures_loading()[9], surf, desk)
+		visuals.scale_down(self, pics_loading.FIGURES_PICS[8], pics_loading.FIGURES_PICS[9], surf, desk)
 
 		rect = self.surf.get_rect(center = (self.x1 +32, self.y1+ 32))
 		surf.blit(self.surf, rect)
@@ -409,6 +463,7 @@ class King(Figure):
 		self.castlingMoves = [] 
 		self.attackingSteps = self.attackingStepsFunc()
 		self.mat = False
+		self.payment = 99999
 
 	def draw(self, surf, desk):
 		desk[self.y][self.x] = self.color
@@ -416,7 +471,7 @@ class King(Figure):
 			self.steps_draw(surf, desk)
 		if self.isMoving == True:
 			visuals.move_animation(self)
-		visuals.scale_down(self, pics_loading.figures_loading()[10], pics_loading.figures_loading()[11], surf, desk)
+		visuals.scale_down(self, pics_loading.FIGURES_PICS[10], pics_loading.FIGURES_PICS[11], surf, desk)
 
 		rect = self.surf.get_rect(center = (self.x1 +32, self.y1+ 32))
 		surf.blit(self.surf, rect)
@@ -571,7 +626,6 @@ def defendTheKing(obj, desk):
 			attackingFigures = f.attackingFigures
 			if f.underAttack: 
 				areWeKillingTheKing = True
-
 	if areWeKillingTheKing:
 		obj.ghostSteps(desk, king_x, king_y, attackingFigures)
 		obj.areStepsCreated = True
@@ -581,6 +635,8 @@ def defendTheKing(obj, desk):
 			f.allowedToMove = True
 			f.defendingTheKing = False
 		obj.ghostSteps(desk, king_x, king_y, attackingFigures)
+		if type(obj)!=King: #фикс для рокировки
+			obj.areStepsCreated = True
 	return mat
 
 def forced_move(obj, desk, j, i):
@@ -592,3 +648,42 @@ def forced_move(obj, desk, j, i):
 	obj.y = i
 	visuals.AnimationUgol(obj)
 	obj.isMoving = True
+
+ticker = 0
+i = 0
+def rewind(desk, figures):
+	global ticker, i
+	ticker+=1
+	fullInfo = fileRead()
+	s = []
+	if i < len(fullInfo):
+		if ticker%25 == 0:
+			s = fullInfo[i]
+			i+=1
+		if s:
+			forced_move_rewind(int(s[0]), int(s[1]), int(s[2]), int(s[3]), int(s[4]), int(s[5]), int(s[6]), int(s[7]), int(s[8]), figures, desk)
+
+def forced_move_rewind(wasCastling, x, y, x1, y1, x2, y2, x3, y3, figures, desk):
+	global ticker
+	print(x, y, x1, y1)
+	
+	for f in figures:
+		if f.x==x1 and f.y==y1: 
+			figures.remove(f)
+			pics_loading.SOUNDS[random.randint(6, 11)].play()
+		
+		if f.x==x and f.y==y and wasCastling == 0:
+			color = f.color
+			pics_loading.SOUNDS[random.randint(0, 5)].play()
+			
+			forced_move(f, desk, x1, y1)
+			
+		elif f.x==x and f.y==y and wasCastling == 1:
+			pics_loading.SOUNDS[random.randint(0, 5)].play()
+			forced_move(f, desk, x1, y1)
+			for f in figures:
+				if f.x == x2 and f.y == y2:
+					forced_move(f, desk, x3, y3)
+
+if __name__ == "__main__":
+    print('you were not supposed to use this as main')
