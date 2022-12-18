@@ -38,13 +38,13 @@ figurs1 = [figures.Ladya(x = 7, y = 7, color = 0), figures.Ladya(x = 0, y = 7, c
 		  figures.King(x = 3, y = 7, color = 0),
 		  figures.King(x = 4, y = 0, color = 1)]
 
-figurs2 = [
-		  figures.King(x = 3, y = 7, color = 0), figures.Queen(x = 6, y = 6, color = 1),
-		  figures.Ladya(x = 6, y = 7, color = 0), figures.Bishop(x = 1, y = 5, color = 0),
-		  figures.Pawn(x = 2, y = 4, color = 1),
-		  figures.King(x = 6, y = 0, color = 1)]
-
 figurs3 = [
+		  figures.King(x = 3, y = 7, color = 0), figures.Pawn(x = 1, y = 7, color = 0),
+		  figures.Queen(x = 6, y = 6, color = 0), figures.Queen(x = 4, y = 4, color = 0),
+		  figures.Horse(x = 6, y = 3, color = 0),
+		  figures.King(x = 7, y = 2, color = 1)]
+
+figurs2 = [
 		  figures.Ladya(x = 7, y = 7, color = 0), figures.Ladya(x = 0, y = 7, color = 0),
 		  figures.Ladya(x = 7, y = 0, color = 1), figures.Ladya(x = 0, y = 0, color = 1),
 		  figures.Horse(x = 6, y = 7, color = 0), figures.Horse(x = 1, y = 7, color = 0), 
@@ -72,7 +72,7 @@ ticker = 0
 hod = 0
 mat = False
 nameOfTheColor = 0
-rewind = False
+rewind = True
 
 coins = [0, 0]
 
@@ -85,7 +85,7 @@ def search_n_kill(x,y,last_one):
 		if f.x == x and f.y == y and f!=last_one:
 			if f.color == 0: coins[1]+=f.payment
 			else: coins[0]+=f.payment
-			pics_loading.SOUNDS[random.randint(5, 7)].play()
+			pics_loading.SOUNDS[random.randint(6, 11)].play()
 			figurs.remove(f)
 		
 def pawn_to_queen():
@@ -109,6 +109,7 @@ def click(event):
 	for sh_b in shop_buttons:
 		if not(sh_b.blocked):
 			sh_b.click(figurs, coins, nameOfTheColor)
+			sh_b.figureClicked = None
 
 	for f in figurs:
 		last_one = 0

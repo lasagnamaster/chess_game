@@ -17,8 +17,8 @@ shop_buttons_names = ['bishop_b.png','bishop_w.png','horse_b.png','horse_w.png',
                         'pawn_bw.png', 'ladya_bw.png', 'bishop_bw.png', 'horse_bw.png', 'queen_bw.png']
 SHOP_BUTTON_PICS = [pygame.image.load('images/shop_buttons/'+path) for path in shop_buttons_names]
 
-sounds_names = ['moving_piece1.wav','moving_piece2.wav','moving_piece3.wav','moving_piece4.wav','moving_piece5.wav',
-                'piece_upgrade1.wav','piece_upgrade2.wav','piece_upgrade3.wav','piece_upgrade4.wav']
+sounds_names = ['moving_piece1.wav','moving_piece2.wav','moving_piece3.wav','moving_piece4.wav','moving_piece5.wav', 'moving_piece6.wav',
+                'piece_upgrade1.wav','piece_upgrade2.wav','piece_upgrade3.wav','piece_upgrade4.wav', 'piece_upgrade5.wav', 'piece_upgrade6.wav']
 SOUNDS = [pygame.mixer.Sound('sounds/sfx/'+path) for path in sounds_names]
 
 if __name__ == "__main__":

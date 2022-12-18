@@ -1,4 +1,4 @@
-import pygame, pics_loading, visuals, math, copy, random
+import pygame, pics_loading, visuals, math, copy, random, shop
 
 castlingLadyas = []
 mat = False
@@ -110,7 +110,7 @@ class Figure:
 												rook_y1 = self.y
 											castlingEnded = True
 											wasCastling = 1
-							
+
 							fileWrite([wasCastling, self.x, self.y, j, i, rook_x, rook_y, rook_x1, rook_y1])
 							if desk[i][j]!=self.color and desk[i][j]!=-1: needToKill = True
 							self.firstMove = False
@@ -128,13 +128,13 @@ class Figure:
 							self.areStepsCreated = False
 							self.defendingTheKing = False
 							castlingLadyas = []
-							pics_loading.SOUNDS[random.randint(0, 4)].play()
+							pics_loading.SOUNDS[random.randint(0, 5)].play()
 							hod += 1
-							desk_print(desk)
 							for f in self.figures:
 								if f.color!=self.color and type(f)==King:
 									mat = defendTheKing(f, desk)
 									break
+							self.steps_m = [[False for i in range(8)] for j in range(8)]
 							return hod, needToKill, mat
 		self.areStepsCreated = False
 		return hod, needToKill, mat
@@ -146,6 +146,7 @@ class Figure:
 		if type(self)==King and not(self.areStepsCreated):
 			self.steps_m = self.goes(desk)
 			self.areStepsCreated = True
+			defendTheKing(self,desk)
 		if self.allowedToMove:
 			visuals.trans(self)
 			steps = self.steps_m
@@ -190,31 +191,20 @@ class Figure:
 					desk_temp = copy.deepcopy(desk)
 					returnTheseBack = []
 
-							#print(f.allowedToMove, type(f), f.color)
-						#if f.x == j and f.y == i and desk[i][j]!=self.color and not(f in attackingFigures):
-							#attackingFigures.append(f)
-
 					desk_temp[i][j] = self.color
 					desk_temp[self.y][self.x] = -1
-					
-					#if len(attackingFigures)==1:
-						#for af in attackingFigures:
-							#if af.x == j and af.y == i:
-								#self.allowedToMove = True
-								#self.defendingTheKing = True
-								#self.steps_m[i][j] = True
-								##attackingFigures.remove(af)
 
 					for f in figures_temp:
 						if f.x==j and f.y==i and self.color!=f.color:
+							print(type(f), i, j)
 							figures_temp.remove(f)
 							returnTheseBack.append(f)
 
 					new_attacking_steps = self.howCanWeKillTheKing(desk_temp, figures_temp)
+					
 					if type(self)==King:
 						king_x = j
 						king_y = i
-					desk_print(new_attacking_steps)
 					if not(new_attacking_steps[king_y][king_x]): 
 						self.allowedToMove = True
 						self.defendingTheKing = True
@@ -226,15 +216,8 @@ class Figure:
 		for f in self.figures:
 			if f.color==self.color and f.steps_m != [[False for i in range(8)] for j in range(8)]:
 				canSomeoneGo = True
-				print(f.color, type(f), f.x, f.y)
-		print(canSomeoneGo)
-		print(type(self), self.steps_m, not(canSomeoneGo))
 		if type(self)==King and self.steps_m == [[False for i in range(8)] for j in range(8)] and not(canSomeoneGo):
 			mat = True
-		print(type(self), self.color)
-
-	
-
 
 class Pawn(Figure):
 	def __init__(self,x,y, color):
@@ -536,7 +519,7 @@ class King(Figure):
 
 		
 		self.castlingMoves = [[False for i in range(8)] for j in range(8)] #Рокировка
-		if self.firstMove and not(self.underAttack) and self.clicked:
+		if self.firstMove and not(self.underAttack):
 			for f in self.figures:
 				if f.color == self.color and type(f)==Ladya and f.firstMove:
 					denyCastling = False
@@ -666,7 +649,7 @@ def rewind(desk, figures):
 	fullInfo = fileRead()
 	s = []
 	if i < len(fullInfo):
-		if ticker%50 == 0:
+		if ticker%25 == 0:
 			s = fullInfo[i]
 			i+=1
 		if s:
@@ -674,21 +657,22 @@ def rewind(desk, figures):
 
 def forced_move_rewind(wasCastling, x, y, x1, y1, x2, y2, x3, y3, figures, desk):
 	global ticker
-		
 	print(x, y, x1, y1)
+	
 	for f in figures:
 		if f.x==x1 and f.y==y1: 
 			figures.remove(f)
-			pics_loading.SOUNDS[random.randint(5, 7)].play()
-		print(wasCastling)
+			pics_loading.SOUNDS[random.randint(6, 11)].play()
+		
 		if f.x==x and f.y==y and wasCastling == 0:
-			pics_loading.SOUNDS[random.randint(0, 4)].play()
+			color = f.color
+			pics_loading.SOUNDS[random.randint(0, 5)].play()
+			
 			forced_move(f, desk, x1, y1)
+			
 		elif f.x==x and f.y==y and wasCastling == 1:
-			pics_loading.SOUNDS[random.randint(0, 4)].play()
+			pics_loading.SOUNDS[random.randint(0, 5)].play()
 			forced_move(f, desk, x1, y1)
-				
-			print(type(f))
 			for f in figures:
 				if f.x == x2 and f.y == y2:
 					forced_move(f, desk, x3, y3)

@@ -39,27 +39,29 @@ class Shop_button():
                 if f.color==figureClicked and type(f)==King:
                     f.goes(desk)
                     attackingFigures = f.attackingFigures
-                    print(attackingFigures)
                     if f.underAttack: 
                         areWeKillingTheKing = True
         if self.rect.collidepoint(pos) and figureClicked!=None and type(figureClicked)!=figures.King and not(areWeKillingTheKing) and figureClicked.color == nameOfTheColor:
             if not(type(figureClicked)==type(self.figure)):
                 if type(self.figure) == figures.Pawn:
-                    figurs.append(figures.Pawn(x = figureClicked.x, y = figureClicked.y, color = figureClicked.color))
+                    f = figures.Pawn(x = figureClicked.x, y = figureClicked.y, color = figureClicked.color)
                 elif type(self.figure) == figures.Ladya:
-                    figurs.append(figures.Ladya(x = figureClicked.x, y = figureClicked.y, color = figureClicked.color))
+                    f=figures.Ladya(x = figureClicked.x, y = figureClicked.y, color = figureClicked.color)
                 elif type(self.figure) == figures.Horse:
-                    figurs.append(figures.Horse(x = figureClicked.x, y = figureClicked.y, color = figureClicked.color))
+                    f=figures.Horse(x = figureClicked.x, y = figureClicked.y, color = figureClicked.color)
                 elif type(self.figure) == figures.Bishop:
-                    figurs.append(figures.Bishop(x = figureClicked.x, y = figureClicked.y, color = figureClicked.color))
+                    f=figures.Bishop(x = figureClicked.x, y = figureClicked.y, color = figureClicked.color)
                 elif type(self.figure) == figures.Queen:
-                    figurs.append(figures.Queen(x = figureClicked.x, y = figureClicked.y, color = figureClicked.color))
+                    f=figures.Queen(x = figureClicked.x, y = figureClicked.y, color = figureClicked.color)
+                
+                figurs.append(f)
+
                 if figureClicked.color == 0:
                     coins[0]-=payment
                 else:
                     coins[1]-=payment
                 pics_loading.SOUNDS[random.randint(5, 8)].play()
                 figurs.remove(figureClicked)
-                self.figureClicked = None
+
            
 
