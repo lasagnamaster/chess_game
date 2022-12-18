@@ -1,59 +1,64 @@
-import pygame, math, figures, pics_loading, shop, random
+import pygame, math, figures, pics_loading, Button, config, copy, random, shop, visuals
 
 pygame.init()
 
 WIDTH = 1080
 HEIGHT = 720
 
-font = pygame.font.Font('VCREAS 3.0.ttf', 32)
+font = pygame.font.Font('DungeonChunk.ttf', 32)
 
+mainmenu_music_is_playing = 0
+game_music_is_playing = 0
+pause_music_is_playing = 0
+volume = 0
+UpVolume = False
 sc = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("Chess'N'Guns")
 
 FPS = 60
 clock = pygame.time.Clock()
 
-figurs = [figures.Pawn(x = 0, y = 6, color = 0), figures.Pawn(x = 1, y = 6, color = 0),
-		  figures.Pawn(x = 2, y = 6, color = 0), figures.Pawn(x = 3, y = 6, color = 0),
-		  figures.Pawn(x = 4, y = 6, color = 0), figures.Pawn(x = 5, y = 6, color = 0),
-		  figures.Pawn(x = 6, y = 6, color = 0), figures.Pawn(x = 7, y = 6, color = 0),
-		  figures.Pawn(x = 0, y = 1, color = 1), figures.Pawn(x = 1, y = 1, color = 1),
-		  figures.Pawn(x = 2, y = 1, color = 1), figures.Pawn(x = 3, y = 1, color = 1),
-		  figures.Pawn(x = 4, y = 1, color = 1), figures.Pawn(x = 5, y = 1, color = 1),
-		  figures.Pawn(x = 6, y = 1, color = 1), figures.Pawn(x = 7, y = 1, color = 1),
+buttons = [Button.Start(x = 390, y = 200, image = pics_loading.BUTTON_PICS[0], under_mouse_image= pics_loading.BUTTON_PICS[1]),
+		   Button.Quit(x = 390, y = 350, image = pics_loading.BUTTON_PICS[2], under_mouse_image= pics_loading.BUTTON_PICS[3])]
 
-		  figures.Ladya(x = 7, y = 7, color = 0), figures.Ladya(x = 0, y = 7, color = 0),
-		  figures.Ladya(x = 7, y = 0, color = 1), figures.Ladya(x = 0, y = 0, color = 1),
-		  figures.Horse(x = 6, y = 7, color = 0), figures.Horse(x = 1, y = 7, color = 0), 
-		  figures.Horse(x = 6, y = 0, color = 1), figures.Horse(x = 1, y = 0, color = 1), 
-		  figures.Bishop(x = 5, y = 7, color = 0), figures.Bishop(x = 2, y = 7, color = 0), 
-		  figures.Bishop(x = 5, y = 0, color = 1), figures.Bishop(x = 2, y = 0, color = 1), 
-		  figures.Queen(x = 3, y = 7, color = 0), figures.Queen(x = 3, y = 0, color = 1), 
-		  figures.King(x = 4, y = 7, color = 0),
-		  figures.King(x = 4, y = 0, color = 1)]
+buttons_pause = [Button.Resume(x = 390, y = 200, image = pics_loading.BUTTON_PICS[6], under_mouse_image= pics_loading.BUTTON_PICS[7]),
+				 Button.Menu_Open(x = 390, y = 350, image = pics_loading.BUTTON_PICS[4], under_mouse_image= pics_loading.BUTTON_PICS[5])]
 
-figurs1 = [figures.Ladya(x = 7, y = 7, color = 0), figures.Ladya(x = 0, y = 7, color = 0),
-		  figures.Ladya(x = 7, y = 0, color = 1), figures.Ladya(x = 0, y = 0, color = 1),
-		  figures.Pawn(x = 6, y = 0, color = 1), figures.Pawn(x = 1, y = 7, color = 0),
-		  figures.King(x = 3, y = 7, color = 0),
-		  figures.King(x = 4, y = 0, color = 1)]
+figurs = config.figurs_start_posssison
 
-figurs3 = [
-		  figures.King(x = 3, y = 7, color = 0), figures.Pawn(x = 1, y = 7, color = 0),
-		  figures.Queen(x = 6, y = 6, color = 0), figures.Queen(x = 4, y = 4, color = 0),
-		  figures.Horse(x = 6, y = 3, color = 0),
-		  figures.King(x = 7, y = 2, color = 1)]
 
-figurs2 = [
-		  figures.Ladya(x = 7, y = 7, color = 0), figures.Ladya(x = 0, y = 7, color = 0),
-		  figures.Ladya(x = 7, y = 0, color = 1), figures.Ladya(x = 0, y = 0, color = 1),
-		  figures.Horse(x = 6, y = 7, color = 0), figures.Horse(x = 1, y = 7, color = 0), 
-		  figures.Horse(x = 6, y = 0, color = 1), figures.Horse(x = 1, y = 0, color = 1), 
-		  figures.Bishop(x = 5, y = 7, color = 0), figures.Bishop(x = 2, y = 7, color = 0), 
-		  figures.Bishop(x = 5, y = 0, color = 1), figures.Bishop(x = 2, y = 0, color = 1), 
-		  figures.Queen(x = 3, y = 7, color = 0), figures.Queen(x = 3, y = 0, color = 1), 
-		  figures.King(x = 4, y = 7, color = 0),
-		  figures.King(x = 4, y = 0, color = 1)]
+#figurs1 = [figures.Ladya(x = 7, y = 7, color = 0), figures.Ladya(x = 0, y = 7, color = 0),
+		  #figures.Ladya(x = 7, y = 0, color = 1), figures.Ladya(x = 0, y = 0, color = 1),
+		  #figures.Horse(x = 6, y = 7, color = 0), figures.Horse(x = 1, y = 7, color = 0), 
+		  #figures.Horse(x = 6, y = 0, color = 1), figures.Horse(x = 1, y = 0, color = 1), 
+		  #figures.Bishop(x = 5, y = 7, color = 0), figures.Bishop(x = 2, y = 7, color = 0), 
+		  #figures.Bishop(x = 5, y = 0, color = 1), figures.Bishop(x = 2, y = 0, color = 1), 
+		  #figures.Queen(x = 3, y = 7, color = 0), figures.Queen(x = 3, y = 0, color = 1), 
+		  #figures.King(x = 4, y = 7, color = 0),
+		  #figures.King(x = 4, y = 0, color = 1)]
+
+#figurs1 = [figures.Ladya(x = 7, y = 7, color = 0), figures.Ladya(x = 0, y = 7, color = 0),
+		  #figures.Ladya(x = 7, y = 0, color = 1), figures.Ladya(x = 0, y = 0, color = 1),
+		  #figures.Pawn(x = 6, y = 0, color = 1), figures.Pawn(x = 1, y = 7, color = 0),
+		  #figures.King(x = 3, y = 7, color = 0),
+		  #figures.King(x = 4, y = 0, color = 1)]
+
+#figurs3 = [
+		  #figures.King(x = 3, y = 7, color = 0), figures.Pawn(x = 1, y = 7, color = 0),
+		  #figures.Queen(x = 6, y = 6, color = 0), figures.Queen(x = 4, y = 4, color = 0),
+		  #figures.Horse(x = 6, y = 3, color = 0),
+		  #figures.King(x = 7, y = 2, color = 1)]
+
+#figurs2 = [
+		  #figures.Ladya(x = 7, y = 7, color = 0), figures.Ladya(x = 0, y = 7, color = 0),
+		  #figures.Ladya(x = 7, y = 0, color = 1), figures.Ladya(x = 0, y = 0, color = 1),
+		  #figures.Horse(x = 6, y = 7, color = 0), figures.Horse(x = 1, y = 7, color = 0), 
+		  #figures.Horse(x = 6, y = 0, color = 1), figures.Horse(x = 1, y = 0, color = 1), 
+		  #figures.Bishop(x = 5, y = 7, color = 0), figures.Bishop(x = 2, y = 7, color = 0), 
+		  #figures.Bishop(x = 5, y = 0, color = 1), figures.Bishop(x = 2, y = 0, color = 1), 
+		  #figures.Queen(x = 3, y = 7, color = 0), figures.Queen(x = 3, y = 0, color = 1), 
+		  #figures.King(x = 4, y = 7, color = 0),
+		  #figures.King(x = 4, y = 0, color = 1)]
 
 shop_buttons = [shop.Shop_button(pics_loading.SHOP_BUTTON_PICS[0], pics_loading.SHOP_BUTTON_PICS[1], pics_loading.SHOP_BUTTON_PICS[12],
 					figures.Bishop(x = 0, y = 0, color = 0),850,104),
@@ -79,6 +84,35 @@ coins = [0, 0]
 for f in figurs:
 	f.FiguresImport(figurs)
 
+def initNewGame():
+	global desk, hod
+	figurs_start_posssison = [figures.Pawn(x=0, y=6, color=0), figures.Pawn(x=1, y=6, color=0),
+							  figures.Pawn(x=2, y=6, color=0), figures.Pawn(x=3, y=6, color=0),
+							  figures.Pawn(x=4, y=6, color=0), figures.Pawn(x=5, y=6, color=0),
+							  figures.Pawn(x=6, y=6, color=0), figures.Pawn(x=7, y=6, color=0),
+							  figures.Pawn(x=0, y=1, color=1), figures.Pawn(x=1, y=1, color=1),
+							  figures.Pawn(x=2, y=1, color=1), figures.Pawn(x=3, y=1, color=1),
+							  figures.Pawn(x=4, y=1, color=1), figures.Pawn(x=5, y=1, color=1),
+							  figures.Pawn(x=6, y=1, color=1), figures.Pawn(x=7, y=1, color=1),
+
+							  figures.Ladya(x=7, y=7, color=0), figures.Ladya(x=0, y=7, color=0),
+							  figures.Ladya(x=7, y=0, color=1), figures.Ladya(x=0, y=0, color=1),
+							  figures.Horse(x=6, y=7, color=0), figures.Horse(x=1, y=7, color=0),
+							  figures.Horse(x=6, y=0, color=1), figures.Horse(x=1, y=0, color=1),
+							  figures.Bishop(x=5, y=7, color=0), figures.Bishop(x=2, y=7, color=0),
+							  figures.Bishop(x=5, y=0, color=1), figures.Bishop(x=2, y=0, color=1),
+							  figures.Queen(x=4, y=7, color=0), figures.Queen(x=3, y=0, color=1),
+							  figures.King(x=3, y=7, color=0),
+							  figures.King(x=4, y=0, color=1)]
+	for f in figurs_start_posssison:
+		f.firstMove = True
+	desk = [[-1 for i in range(8)] for j in range(8)]
+	hod = 0
+	return figurs_start_posssison
+def IsQuit():
+	global finished
+	if Button.Finish == True:
+		finished = True
 def search_n_kill(x,y,last_one):
 	global figurs, coins
 	for f in figurs:
@@ -142,65 +176,140 @@ def click(event):
 		f.clicked = False
 	return False
 
+def UpVolumeFun():
+	global volume
+	if UpVolume == True:
+		if volume <= 0.1:
+			volume = 0.1
+		else:
+			volume -= 0.01
+	else:
+		if volume >= 1:
+			volume = 1
+		else:
+			volume += 0.01
+	pygame.mixer.music.set_volume(volume)
+	if Button.Menu == False and Button.Pause_Menu == False:
+		pygame.mixer.music.set_volume(volume)
+    
 def render():
-	global desk_im, mat, coins, nameOfTheColor, rewind
-	rg = pygame.Surface((1080,720))
-
-	rg.fill((50,50,50))
-
-	desk_sc = pygame.Surface((512,512)).convert_alpha()
-	desk_sc.set_colorkey((0,0,0))
-	desk_sc.blit(pics_loading.VISUALS_PICS[0], (0,0))
-
-	shah = ''
-	if hod%2==1: nameOfTheColor = 1 
-	else: nameOfTheColor = 0
-
-	for sh_b in shop_buttons:
-		rg.blit(sh_b.draw(nameOfTheColor, coins), (sh_b.x, sh_b.y))
 	
-	for figura in figurs:
-		figura.draw(desk_sc, desk)
-		if type(figura)==figures.King and figura.color==nameOfTheColor:
-			if figura.underAttack and not(mat):
-				shah = 'Check'
-			elif figura.underAttack and mat: 
-				shah = 'Mate'
-			else: shah = ''
+	global desk_im, mat, mainmenu_music_is_playing, game_music_is_playing, pause_music_is_playing, volume, UpVolume, coins, nameOfTheColor, rewind
+	if Button.Menu == True:
+		pause_music_is_playing = 0
+		game_music_is_playing = 0
+		if not mainmenu_music_is_playing:
+			pygame.mixer.music.load(pics_loading.MUSIC[random.randint(0,2)])
+			pygame.mixer.music.play()
+			mainmenu_music_is_playing = 1
 
-	pawn_to_queen()
-	if hod%2==0 and not(rewind): shod= "White's move"
-	elif hod%2==1 and not(rewind): shod = "Black's move"
-	elif rewind: shod = "Rewind mode"
-	
-	hodt = font.render(shod, 1, (220,220,220))
-	shaht = font.render(shah, 1, (240,50,50))
+		rg = pygame.Surface((1080,720))
+		rg.blit(pics_loading.VISUALS_PICS[3], (0,0))
+		for b in buttons:
+			b.draw(rg)
 
-	rg.blit(hodt, (50, 100))
-	rg.blit(shaht, (50, 200))
+	elif Button.Pause_Menu == True:
+		mainmenu_music_is_playing = 0
+		if not pause_music_is_playing:
+			UpVolume = True
+			pause_music_is_playing = 1
 
-	rg.blit(desk_sc, (284, 104))
+		rg = pygame.Surface((1080,720))
+		rg.blit(pics_loading.VISUALS_PICS[5], (0,0))
+		for b in buttons_pause:
+			b.draw(rg)
+	else:
+		pause_music_is_playing = 0
+		mainmenu_music_is_playing = 0
+		if not game_music_is_playing:
+			pygame.mixer.music.load(pics_loading.MUSIC[random.randint(3,6)])
+			pygame.mixer.music.play()
+			game_music_is_playing = 1
 
+		else:
+			#pygame.mixer.music.set_volume(volume)
+			UpVolume = False
+		rg = pygame.Surface((1080,720))
+
+    rg.fill((50,50,50))
+
+    desk_sc = pygame.Surface((512,512)).convert_alpha()
+    desk_sc.set_colorkey((0,0,0))
+    desk_sc.blit(pics_loading.VISUALS_PICS[0], (0,0))
+
+    shah = ''
+    if hod%2==1: nameOfTheColor = 1 
+    else: nameOfTheColor = 0
+
+    for sh_b in shop_buttons:
+      rg.blit(sh_b.draw(nameOfTheColor, coins), (sh_b.x, sh_b.y))
+
+    for figura in figurs:
+      figura.draw(desk_sc, desk)
+      if type(figura)==figures.King and figura.color==nameOfTheColor:
+        if figura.underAttack and not(mat):
+          shah = 'Check'
+        elif figura.underAttack and mat: 
+          shah = 'Mate'
+        else: shah = ''
+
+    pawn_to_queen()
+    if hod%2==0 and not(rewind): shod= "White's move"
+    elif hod%2==1 and not(rewind): shod = "Black's move"
+    elif rewind: shod = "Rewind mode"
+
+    hodt = font.render(shod, 1, (220,220,220))
+    shaht = font.render(shah, 1, (240,50,50))
+
+    rg.blit(hodt, (50, 100))
+    rg.blit(shaht, (50, 200))
+
+    rg.blit(desk_sc, (284, 104))
 	return rg
 
 def gameOverScreen():
 	pass
+def Which_Button_Clicked():
+	global figurs, hod
+	if Button.Menu == True:
+		for b in buttons:
+			b.click()
+			if Button.Is_New_Game == True:
+				figurs = initNewGame()
+				hod = 0
+	elif Button.Pause_Menu == True:
+		for b in buttons_pause:
+			b.click()
 
 if not(rewind): figures.clear()
 
 while not finished: #main cycle
 	ticker+=1
+	IsQuit()
+	UpVolumeFun()
 	for f in figurs:
 		f.FiguresImport(figurs)
 	if rewind:
 		figures.rewind(desk, figurs)
 	for event in pygame.event.get():
-		if event.type == pygame.QUIT:
+		if event.type == pygame.KEYDOWN:
+			if event.key == pygame.K_ESCAPE:
+				Button.Pause_Menu = not Button.Pause_Menu
+				Button.Is_New_Game = False
+		elif event.type == pygame.MOUSEMOTION:
+			visuals.IsGunRotate()
+		elif event.type == pygame.QUIT:
 			exit()
-		if event.type == pygame.MOUSEBUTTONDOWN and not(rewind):
+		elif event.type == pygame.MOUSEBUTTONDOWN and not(rewind):
 			click(event)
-		if event.type == pygame.MOUSEBUTTONUP:
-			pass
+			Which_Button_Clicked()
+
+
+		elif event.type == pygame.MOUSEBUTTONUP:
+			for b in buttons_pause:
+				b.clicked = False
+			for b in buttons:
+				b.clicked = False
 
 	clock.tick(FPS)
 	sc.blit(render(), (0,0))

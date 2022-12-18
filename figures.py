@@ -66,6 +66,7 @@ class Figure:
 		self.firstMove = True
 		self.health = 100
 		self.payment = 0
+		self.gun_trans = 0
 
 	def move(self, event, desk, hod):
 		global castlingLadyas, mat
@@ -227,12 +228,19 @@ class Pawn(Figure):
 	
 	def draw(self, surf, desk):
 		desk[self.y][self.x] = self.color
+		gun_surf = pygame.Surface((256,256)).convert_alpha()
 		if self.clicked:
 			self.steps_draw(surf, desk)
+			gun_surf = visuals.gun_move_and_rotate(self, pics_loading.visuals_loading()[2])
+		else:
+			self.gun_trans = 0
+
 		if self.isMoving == True:
 			visuals.move_animation(self)
 		visuals.scale_down(self, pics_loading.FIGURES_PICS[0], pics_loading.FIGURES_PICS[1], surf, desk)
 		rect = self.surf.get_rect(center = (self.x1 +32, self.y1+ 32))
+		rect1 = self.surf.get_rect(center = (self.x1-70, self.y1-65))
+		surf.blit(gun_surf, rect1)
 		surf.blit(self.surf, rect)
 
 	def goes(self, desk):
@@ -241,7 +249,7 @@ class Pawn(Figure):
 		if self.color == 0: k = -1 #white
 		else: k = 1 #black
 		if not(self.y+2*k == 8 or self.y+2*k == -1 or self.y+2*k == -2 or self.y+2*k == 9):
-			if self.steps == 0 and not(desk[self.y + 2*k][self.x]!=-1 or desk[self.y + k][self.x]!=-1): #двигаем пешку первым ходом
+			if self.firstMove and not(desk[self.y + 2*k][self.x]!=-1 or desk[self.y + k][self.x]!=-1): #двигаем пешку первым ходом
 				steps[self.y + 2*k][self.x]=True
 		if not(self.y + k == 8 or self.y + k == -1):
 			if not(desk[self.y + k][self.x]!=-1):
@@ -519,7 +527,7 @@ class King(Figure):
 
 		
 		self.castlingMoves = [[False for i in range(8)] for j in range(8)] #Рокировка
-		if self.firstMove and not(self.underAttack):
+		if self.firstMove and not(self.underAttack) and self.clicked:
 			for f in self.figures:
 				if f.color == self.color and type(f)==Ladya and f.firstMove:
 					denyCastling = False
