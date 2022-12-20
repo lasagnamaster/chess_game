@@ -1,4 +1,4 @@
-import pygame, pics_loading, visuals, math, copy, random, shop
+import pygame, pics_loading, visuals, math, copy, random, shop, guns
 
 castlingLadyas = []
 mat = False
@@ -53,6 +53,7 @@ class Figure:
 		self.s = [64, 64]
 		self.steps = 0
 		self.steps_m = [[False for i in range(8)] for j in range(8)]
+		self.shoot_m = [[False for i in range(8)] for j in range(8)]
 		self.areStepsCreated = False
 		self.trans = 25
 		self.figures_trans = 255
@@ -64,11 +65,13 @@ class Figure:
 		self.allowedToMove = True
 		self.defendingTheKing = False
 		self.firstMove = True
-		self.health = 100
+		self.health = 50
 		self.payment = 0
+		self.radius = 0
 		self.gun_trans = 0
+		self.attention = False #детектим фигуры
 
-	def move(self, event, desk, hod):
+	def move(self, event, desk, hod, keys_mouse, coins):
 		global castlingLadyas, mat
 		needToKill = False
 		mat = False
@@ -78,67 +81,82 @@ class Figure:
 			if self.defendingTheKing: steps = self.steps_m
 			x0 = event.pos[0]
 			y0 = event.pos[1]
-			for i in range(len(steps)):
-				for j in range(len(steps[i])):
-					if steps[i][j]:
-						steps[i][j]==False
-						if x0 < (j+1)*64+284 and x0 >= j*64+284 and y0 >= i*64+104 and y0 < (i+1)*64+104:
+			if keys_mouse[0]:
+				for i in range(len(steps)):
+					for j in range(len(steps[i])):
+						if steps[i][j]:
+							steps[i][j]==False
+							if x0 < (j+1)*64+284 and x0 >= j*64+284 and y0 >= i*64+104 and y0 < (i+1)*64+104:
 
-							rook_x = 0
-							rook_y = 0
-							rook_x1 = 0
-							rook_y1 = 0
+								rook_x = 0
+								rook_y = 0
+								rook_x1 = 0
+								rook_y1 = 0
 
-							if type(self)==King: #Рокировка
-								if self.castlingMoves[i][j]:
-									castlingEnded = False
-									castlingLadya = 0
-									for f in self.figures:
-										if type(f)==Ladya and f.color==self.color and f in castlingLadyas and not(castlingEnded):
-											if len(castlingLadyas)==2:
-												if abs(x0 - (castlingLadyas[0].x*64+284)) < abs(x0 - (castlingLadyas[1].x*64+284)): castlingLadya = castlingLadyas[0]
-												else: castlingLadya = castlingLadyas[1]
-											else: castlingLadya = castlingLadyas[0]
-											rook_x = castlingLadya.x
-											rook_y = castlingLadya.y
-											if castlingLadya.x > self.x:
-												forced_move(castlingLadya, desk, j-1, self.y)
-												rook_x1 = j-1
-												rook_y1 = self.y
-											else:
-												forced_move(castlingLadya, desk, j+1, self.y)
-												rook_x1 = j+1
-												rook_y1 = self.y
-											castlingEnded = True
-											wasCastling = 1
+								if type(self)==King: #Рокировка
+									if self.castlingMoves[i][j]:
+										castlingEnded = False
+										castlingLadya = 0
+										for f in self.figures:
+											if type(f)==Ladya and f.color==self.color and f in castlingLadyas and not(castlingEnded):
+												if len(castlingLadyas)==2:
+													if abs(x0 - (castlingLadyas[0].x*64+284)) < abs(x0 - (castlingLadyas[1].x*64+284)): castlingLadya = castlingLadyas[0]
+													else: castlingLadya = castlingLadyas[1]
+												else: castlingLadya = castlingLadyas[0]
+												rook_x = castlingLadya.x
+												rook_y = castlingLadya.y
+												if castlingLadya.x > self.x:
+													forced_move(castlingLadya, desk, j-1, self.y)
+													rook_x1 = j-1
+													rook_y1 = self.y
+												else:
+													forced_move(castlingLadya, desk, j+1, self.y)
+													rook_x1 = j+1
+													rook_y1 = self.y
+												castlingEnded = True
+												wasCastling = 1
 
-							fileWrite([wasCastling, self.x, self.y, j, i, rook_x, rook_y, rook_x1, rook_y1])
-							if desk[i][j]!=self.color and desk[i][j]!=-1: needToKill = True
-							self.firstMove = False
-							self.x0 = j*64
-							self.y0 = i*64
-							desk[self.y][self.x] = -1
-							self.x = j
-							self.y = i
-							desk[i][j] = self.color
-							visuals.AnimationUgol(self)
-							self.isMoving = True
-							self.steps+=1
-							self.transformed = False
-							self.clicked = False
-							self.areStepsCreated = False
-							self.defendingTheKing = False
-							castlingLadyas = []
-							pics_loading.SOUNDS[random.randint(0, 5)].play()
-							hod += 1
-							for f in self.figures:
-								if f.color!=self.color and type(f)==King:
-									mat = defendTheKing(f, desk)
-									break
-							self.steps_m = [[False for i in range(8)] for j in range(8)]
-							return hod, needToKill, mat
+								fileWrite([wasCastling, self.x, self.y, j, i, rook_x, rook_y, rook_x1, rook_y1])
+								if desk[i][j]!=self.color and desk[i][j]!=-1: needToKill = True
+								for f in self.figures:
+									if needToKill:
+										if f.x == j and f.y == i and f!=self:
+											pics_loading.SOUNDS[random.randint(6, 11)].play()
+											self.figures.remove(f)
+											if f.color == 0: coins[1]+=f.payment
+											else: coins[0]+=f.payment
+								self.firstMove = False
+								self.shootingRange(desk)
+								self.x0 = j*64
+								self.y0 = i*64
+								desk[self.y][self.x] = -1
+								self.x = j
+								self.y = i
+								self.gun.x = j*64+32
+								self.gun.y = i*64+32
+								desk[i][j] = self.color
+								visuals.AnimationUgol(self)
+								self.isMoving = True
+								self.steps+=1
+								self.transformed = False
+								self.clicked = False
+								self.areStepsCreated = False
+								self.defendingTheKing = False
+								castlingLadyas = []
+								pics_loading.SOUNDS[random.randint(0, 5)].play()
+								hod += 1
+							
+								for f in self.figures:
+									if f.color!=self.color and type(f)!=King:
+										defendTheKing(f, desk)
+										break
+							
+								self.steps_m = [[False for i in range(8)] for j in range(8)]
+								return hod, needToKill, mat, coins
+		
+		self.steps_m = [[False for i in range(8)] for j in range(8)]
 		self.areStepsCreated = False
-		return hod, needToKill, mat
+		return hod, needToKill, mat, coins
 
 	def steps_draw(self, surf, desk):
 		if not(self.areStepsCreated) and self.allowedToMove and not(self.defendingTheKing):
@@ -148,16 +166,23 @@ class Figure:
 			self.steps_m = self.goes(desk)
 			self.areStepsCreated = True
 			defendTheKing(self,desk)
-		if self.allowedToMove:
-			visuals.trans(self)
-			steps = self.steps_m
-			self.areStepsCreated = True
-			green = pics_loading.VISUALS_PICS[1]
-			green.set_alpha(self.trans)
-			for i in range(len(steps)):
-				for j in range(len(steps[i])):
-					if steps[i][j]:
-						surf.blit(green, (j*64, i*64))
+
+		visuals.trans(self)
+		steps = self.steps_m
+		self.areStepsCreated = True
+		green = pics_loading.VISUALS_PICS[1]
+		red = pics_loading.VISUALS_PICS[5]
+		green.set_alpha(self.trans)
+		red.set_alpha(self.trans)
+		for i in range(len(steps)):
+			for j in range(len(steps[i])):
+				if steps[i][j]:
+					surf.blit(green, (j*64, i*64))
+		if self.attention:
+			for i in range(len(self.shoot_m)):
+				for j in range(len(self.shoot_m[i])):
+					if self.shoot_m[i][j]:
+						surf.blit(red, (j*64, i*64))
 
 	def FiguresImport(self, Figures):
 		self.figures = Figures
@@ -183,7 +208,6 @@ class Figure:
 		self.defendingTheKing = False
 		self.steps_m = [[False for i in range(8)] for j in range(8)]
 		steps = self.goes(desk)
-
 		for i in range(len(steps)): #тут происходят призрачные шаги, проверка, что будет с королём при различных ходах фигуры
 			for j in range(len(steps[i])):
 				if steps[i][j]:
@@ -197,7 +221,6 @@ class Figure:
 
 					for f in figures_temp:
 						if f.x==j and f.y==i and self.color!=f.color:
-							print(type(f), i, j)
 							figures_temp.remove(f)
 							returnTheseBack.append(f)
 
@@ -217,21 +240,46 @@ class Figure:
 		for f in self.figures:
 			if f.color==self.color and f.steps_m != [[False for i in range(8)] for j in range(8)]:
 				canSomeoneGo = True
-		if type(self)==King and self.steps_m == [[False for i in range(8)] for j in range(8)] and not(canSomeoneGo):
+		if type(self)==King and self.steps_m == [[False for i in range(8)] for j in range(8)] and not(canSomeoneGo) and self.underAttack:
 			mat = True
+
+
+	def shootingRange(self, desk):
+		self.attention = False
+		self.shoot_m = [[False for i in range(8)] for j in range(8)]
+		
+		radius = self.radius
+		if self.firstMove and type(self) == Pawn:
+			radius = self.radius*2
+		
+		for f in self.figures:
+			if f.color!=self.color and (f.x*64-self.x*64)**2 + (f.y*64-self.y*64) ** 2 <= radius**2 and type(f)!=King:
+				self.shoot_m[f.y][f.x] = True
+
+		for f in self.figures:
+			if f.color!=self.color and f.color!=-1 and self.shoot_m[f.y][f.x]:
+				self.attention = True
+				break
+
+	def healthBar(self, surf):
+		pygame.draw.rect(surf, (220, 40, 40), 
+                 (0, 0, 200, 200))
 
 class Pawn(Figure):
 	def __init__(self,x,y, color):
 		super().__init__(x,y, color)
 		self.attackingSteps = []
 		self.payment = 10
+		self.radius = 64*(2**0.5)*1
+		self.gun = guns.Bazooka(self.x, self.y)
 	
 	def draw(self, surf, desk):
 		desk[self.y][self.x] = self.color
-		gun_surf = pygame.Surface((256,256)).convert_alpha()
+		gun_surf = pygame.Surface((0,0)).convert_alpha()
 		if self.clicked:
 			self.steps_draw(surf, desk)
-			gun_surf = visuals.gun_move_and_rotate(self, pics_loading.visuals_loading()[2])
+			self.gun.draw()
+			gun_surf = self.gun.surf
 		else:
 			self.gun_trans = 0
 
@@ -270,16 +318,23 @@ class Ladya(Figure):
 	def __init__(self,x,y, color):
 		super().__init__(x,y, color)
 		self.payment = 20
+		self.gun = guns.Arisaka(self.x, self.y)
+		self.radius = 64*4
 
 	def draw(self, surf, desk):
 		desk[self.y][self.x] = self.color
+		gun_surf = pygame.Surface((0,0)).convert_alpha()
 		if self.clicked:
 			self.steps_draw(surf, desk)
+			self.gun.draw()
+			gun_surf = self.gun.surf
 		if self.isMoving == True:
 			visuals.move_animation(self)
 		visuals.scale_down(self, pics_loading.FIGURES_PICS[2], pics_loading.FIGURES_PICS[3], surf, desk)
 
 		rect = self.surf.get_rect(center = (self.x1 +32, self.y1+ 32))
+		rect1 = self.surf.get_rect(center = (self.x1-70, self.y1-65))
+		surf.blit(gun_surf, rect1)
 		surf.blit(self.surf, rect)
 
 	def goes(self, desk):
@@ -313,16 +368,23 @@ class Bishop(Figure):
 	def __init__(self,x,y, color):
 		super().__init__(x,y, color)
 		self.payment = 15
+		self.gun = guns.DP_28(self.x, self.y)
+		self.radius = 64*3
 
 	def draw(self, surf, desk):
 		desk[self.y][self.x] = self.color
+		gun_surf = pygame.Surface((0,0)).convert_alpha()
 		if self.clicked:
 			self.steps_draw(surf, desk)
+			self.gun.draw()
+			gun_surf = self.gun.surf
 		if self.isMoving == True:
 			visuals.move_animation(self)
 		visuals.scale_down(self, pics_loading.FIGURES_PICS[4], pics_loading.FIGURES_PICS[5], surf, desk)
 
 		rect = self.surf.get_rect(center = (self.x1 +32, self.y1+ 32))
+		rect1 = self.surf.get_rect(center = (self.x1-70, self.y1-65))
+		surf.blit(gun_surf, rect1)
 		surf.blit(self.surf, rect)
 
 	def goes(self, desk):
@@ -356,16 +418,23 @@ class Horse(Figure):
 	def __init__(self,x,y, color):
 		super().__init__(x,y, color)
 		self.payment = 15
+		self.gun = guns.PPSh(self.x, self.y)
+		self.radius = 64*3
 
 	def draw(self, surf, desk):
 		desk[self.y][self.x] = self.color
+		gun_surf = pygame.Surface((0,0)).convert_alpha()
 		if self.clicked:
 			self.steps_draw(surf, desk)
+			self.gun.draw()
+			gun_surf = self.gun.surf
 		if self.isMoving == True:
 			visuals.move_animation(self)
 		visuals.scale_down(self, pics_loading.FIGURES_PICS[6], pics_loading.FIGURES_PICS[7], surf, desk)
 
 		rect = self.surf.get_rect(center = (self.x1 +32, self.y1+ 32))
+		rect1 = self.surf.get_rect(center = (self.x1-70, self.y1-65))
+		surf.blit(gun_surf, rect1)
 		surf.blit(self.surf, rect)
 
 	def goes(self, desk):
@@ -393,17 +462,24 @@ class Horse(Figure):
 class Queen(Figure):
 	def __init__(self,x,y, color):
 		super().__init__(x,y, color)
-		self.payment = 35
+		self.payment = 40
+		self.gun = guns.Mosin(self.x, self.y)
+		self.radius = 64*5
 
 	def draw(self, surf, desk):
 		desk[self.y][self.x] = self.color
+		gun_surf = pygame.Surface((0,0)).convert_alpha()
 		if self.clicked:
 			self.steps_draw(surf, desk)
+			self.gun.draw()
+			gun_surf = self.gun.surf
 		if self.isMoving == True:
 			visuals.move_animation(self)
 		visuals.scale_down(self, pics_loading.FIGURES_PICS[8], pics_loading.FIGURES_PICS[9], surf, desk)
 
 		rect = self.surf.get_rect(center = (self.x1 +32, self.y1+ 32))
+		rect1 = self.surf.get_rect(center = (self.x1-70, self.y1-65))
+		surf.blit(gun_surf, rect1)
 		surf.blit(self.surf, rect)
 
 	def goes(self, desk):
@@ -464,16 +540,23 @@ class King(Figure):
 		self.attackingSteps = self.attackingStepsFunc()
 		self.mat = False
 		self.payment = 99999
+		self.gun = guns.Pistol(self.x, self.y)
+		self.radius = 64*(2**0.5)*1
 
 	def draw(self, surf, desk):
 		desk[self.y][self.x] = self.color
+		gun_surf = pygame.Surface((0,0)).convert_alpha()
 		if self.clicked:
 			self.steps_draw(surf, desk)
+			self.gun.draw()
+			gun_surf = self.gun.surf
 		if self.isMoving == True:
 			visuals.move_animation(self)
 		visuals.scale_down(self, pics_loading.FIGURES_PICS[10], pics_loading.FIGURES_PICS[11], surf, desk)
 
 		rect = self.surf.get_rect(center = (self.x1 +32, self.y1+ 32))
+		rect1 = self.surf.get_rect(center = (self.x1-70, self.y1-65))
+		surf.blit(gun_surf, rect1)
 		surf.blit(self.surf, rect)
 
 	def goes(self, desk):
@@ -646,6 +729,8 @@ def forced_move(obj, desk, j, i):
 	desk[obj.y][obj.x] = -1
 	obj.x = j
 	obj.y = i
+	obj.gun.x = j*64+32
+	obj.gun.y = i*64+32
 	visuals.AnimationUgol(obj)
 	obj.isMoving = True
 
@@ -665,7 +750,6 @@ def rewind(desk, figures):
 
 def forced_move_rewind(wasCastling, x, y, x1, y1, x2, y2, x3, y3, figures, desk):
 	global ticker
-	print(x, y, x1, y1)
 	
 	for f in figures:
 		if f.x==x1 and f.y==y1: 

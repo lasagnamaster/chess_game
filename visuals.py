@@ -2,11 +2,13 @@ import pygame, figures, math
 
 ColorSpeed = 4
 IsRotate = False
+
 def IsGunRotate():
 	global IsRotate
 	IsRotate = True
+
 def scale_down(obj, pic1, pic2, surf, desk):
-	if obj.clicked and obj.allowedToMove:
+	if obj.clicked:
 		if not(obj.transformed):
 			obj.s[0]-=4
 			obj.s[1]-=4
@@ -61,26 +63,32 @@ def gun_move_and_rotate(obj, pic1):
 		obj.gun_trans = 255
 	else:
 		obj.gun_trans += 16
-	gun_surf = pygame.Surface((256,256)).convert_alpha()
 	x0,y0 = pygame.mouse.get_pos()
 	if IsRotate == True:
-		if x0 == (obj.x1 + 284+32):
-			if (y0- (obj.y1+104+32) )>= 0:
-				an = -math.pi/2
+		if x0 == (obj.x + 284):
+			if (y0- (obj.y+104) )>= 0:
+				obj.an = -math.pi/2
 			else:
-				an = math.pi/2
+				obj.an = math.pi/2
 		else:
-			if (x0 - (obj.x1 +284+32)) >= 0:
-				an = -math.atan((y0 - (obj.y1+104+32))/(x0-(obj.x1 + 284+32)))
+			if (x0 - (obj.x + 284)) >= 0:
+				obj.an = -math.atan((y0 - (obj.y+104))/(x0-(obj.x + 284)))
 			else:
-				an = math.atan((y0 - (obj.y1+104+32))/(x0-(obj.x1 + 284+32)))
-		new_rotate = pygame.transform.rotate(pic1, -an*180/math.pi)
+				obj.an = math.atan((y0 - (obj.y+104))/(x0-(obj.x + 284)))
+			obj.an1 = math.atan((y0 - (obj.y+104))/(x0-(obj.x + 284)))
+			if (x0 - (obj.x + 284)) < 0:
+				obj.an1 = obj.an+math.pi
+			if x0 == (obj.x + 284):
+				if (y0- (obj.y+104) )>= 0:
+					obj.an1 = -math.pi/2
+				else:
+					obj.an1 = math.pi/2
+		new_rotate = pygame.transform.rotate(pic1, -obj.an*180/math.pi)
 		rotate_rect = new_rotate.get_rect(center =(128,128))
-	gun_surf.set_alpha(obj.gun_trans)
-	gun_surf.blit(new_rotate,rotate_rect)
-	if (x0 - (obj.x1 + 284 + 32)) >= 0:
-		gun_surf = pygame.transform.flip(gun_surf, True, False)
-	return gun_surf
+	obj.surf.set_alpha(obj.gun_trans)
+	obj.surf.blit(new_rotate,rotate_rect)
+	if (x0 - (obj.x + 284)) >= 0:
+		obj.surf = pygame.transform.flip(obj.surf, True, False).convert_alpha()
 
 def AnimationUgol(obj):
 	if obj.x1 - obj.x0 == 0:
